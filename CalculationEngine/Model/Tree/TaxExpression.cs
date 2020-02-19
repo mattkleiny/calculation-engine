@@ -39,6 +39,7 @@ namespace CalculationEngine.Model.Tree
 
     public override Expression Compile(CompilationContext context)
     {
+      // TODO: evaluate this on the tax table
       return Expression.MultiplyChecked(Value.Compile(context), Expression.Constant(0.20m));
     }
 

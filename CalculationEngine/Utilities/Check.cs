@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
-// ReSharper disable CheckNamespace
-
 namespace CalculationEngine.Utilities
 {
   internal static class Check

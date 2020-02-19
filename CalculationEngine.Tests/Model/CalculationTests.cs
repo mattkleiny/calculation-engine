@@ -6,7 +6,7 @@ using Xunit;
 
 namespace CalculationEngine.Tests.Model
 {
-  public class CalculationGraphTests
+  public class CalculationTests
   {
     private static readonly decimal Amount = 2m;
 
@@ -51,7 +51,7 @@ namespace CalculationEngine.Tests.Model
       var output = graph.ToString();
 
       Assert.NotNull(output);
-      Assert.True(output.Contains("2.5"));
+      Assert.True(output.Contains("PAYG"));
     }
 
     [Fact]
@@ -64,25 +64,39 @@ namespace CalculationEngine.Tests.Model
       Assert.Equal(150m, output);
     }
 
-    private static Calculation BuildSimpleGraph()
-    {
-      return new Calculation(
-        new TaxExpression(
-          TaxOperation.Add,
-          TaxCategory.PAYG,
-          new RoundingExpression(
-            MidpointRounding.AwayFromZero,
-            new SigmaExpression(
-              new TallyExpression(EarningsCategory.Earnings),
-              new TallyExpression(EarningsCategory.Allowances),
-              new TallyExpression(EarningsCategory.Deductions),
-              new TallyExpression(EarningsCategory.Leave)
+    private static Calculation BuildSimpleGraph() => new Calculation(
+      new BlockExpression(
+        new AssignmentExpression(
+          symbol: "A",
+          operand: new TaxExpression(
+            mode: TaxOperation.Add,
+            category: TaxCategory.PAYG,
+            value: new RoundingExpression(
+              method: MidpointRounding.AwayFromZero,
+              value: new SigmaExpression(
+                new TallyExpression(EarningsCategory.Earnings),
+                new TallyExpression(EarningsCategory.Allowances),
+                new TallyExpression(EarningsCategory.Deductions),
+                new TallyExpression(EarningsCategory.Leave)
+              ),
+              label: "Round to nearest dollar"
             ),
-            label: "Round to nearest dollar"
-          ),
-          label: "Apply PAYG amounts"
+            label: "Apply PAYG amounts"
+          )
+        ),
+        new AssignmentExpression(
+          symbol: "B",
+          new TaxExpression(
+            mode: TaxOperation.Calculate,
+            category: TaxCategory.HELP,
+            value: new ConstantExpression(10_000m)
+          )
+        ),
+        new SigmaExpression(
+          new VariableExpression("A"),
+          new VariableExpression("B")
         )
-      );
-    }
+      )
+    );
   }
 }

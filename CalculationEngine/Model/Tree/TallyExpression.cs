@@ -1,4 +1,3 @@
-using System;
 using System.Linq.Expressions;
 using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
@@ -17,12 +16,14 @@ namespace CalculationEngine.Model.Tree
 
     public override decimal Evaluate(EvaluationContext context)
     {
-      return 100m; // TODO: sample this from somewhere on the context
+      // TODO: sample this from somewhere on the context
+      return 100m;
     }
 
     public override Expression Compile(CompilationContext context)
     {
-      throw new NotImplementedException();
+      // TODO: sample this from somewhere on the context
+      return Expression.Constant(100m);
     }
 
     public override void Explain(ExplanationContext context)

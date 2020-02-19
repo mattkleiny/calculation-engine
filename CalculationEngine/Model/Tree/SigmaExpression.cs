@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using CalculationEngine.Model.Compilation;
@@ -23,7 +23,21 @@ namespace CalculationEngine.Model.Tree
 
     public override Expression Compile(CompilationContext context)
     {
-      throw new NotImplementedException();
+      var queue = new Queue<Expression>();
+
+      foreach (var expression in Expressions)
+      {
+        queue.Enqueue(expression.Compile(context));
+      }
+
+      var latest = queue.Dequeue();
+
+      while (queue.Count > 0)
+      {
+        latest = Expression.AddChecked(latest, queue.Dequeue());
+      }
+
+      return latest;
     }
 
     public override void Explain(ExplanationContext context)
