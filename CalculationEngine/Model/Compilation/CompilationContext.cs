@@ -1,6 +1,6 @@
 namespace CalculationEngine.Model.Compilation
 {
-  internal sealed class CompilationContext
+  public sealed class CompilationContext
   {
   }
 }

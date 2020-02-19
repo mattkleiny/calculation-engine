@@ -4,7 +4,7 @@ using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Tree;
 using Xunit;
 using static CalculationEngine.Model.Evaluation.EarningsCategory;
-using static CalculationEngine.Model.Evaluation.Operations;
+using static CalculationEngine.Model.Evaluation.FluentCalculations;
 using static CalculationEngine.Model.Evaluation.TaxCategory;
 
 namespace CalculationEngine.Tests.Model

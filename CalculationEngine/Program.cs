@@ -1,8 +1,9 @@
 ﻿using System;
 using CalculationEngine.Model;
 using CalculationEngine.Model.Evaluation;
+using CalculationEngine.Model.Tree;
 using static CalculationEngine.Model.Evaluation.EarningsCategory;
-using static CalculationEngine.Model.Evaluation.Operations;
+using static CalculationEngine.Model.Evaluation.FluentCalculations;
 using static CalculationEngine.Model.Evaluation.TaxCategory;
 
 namespace CalculationEngine
@@ -13,7 +14,9 @@ namespace CalculationEngine
     {
       // TODO: perhaps make it possible just to directly transliterate this guy into a series of nodes?
 
-      var graph       = Calculation.Parse(() => Tax(PAYG, YTD(Earnings) + YTD(Allowances) + YTD(Deductions) + YTD(Leave)) / 16m);
+      CalculationExpression calculation = Tax(PAYG, YTD(Earnings) + YTD(Allowances) + YTD(Deductions) + YTD(Leave)) / 16m;
+
+      var graph       = new Calculation(calculation);
       var context     = new EvaluationContext();
       var explanation = graph.Explain(context);
 
