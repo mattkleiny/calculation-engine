@@ -4,11 +4,11 @@ namespace CalculationEngine.Model.Evaluation
 {
   public sealed class TaxTableSet
   {
-    public EvaluationContext.TaxTable PAYG { get; } = new EvaluationContext.TaxTable();
-    public EvaluationContext.TaxTable HELP { get; } = new EvaluationContext.TaxTable();
-    public EvaluationContext.TaxTable STLS { get; } = new EvaluationContext.TaxTable();
+    public TaxTable PAYG { get; } = new TaxTable();
+    public TaxTable HELP { get; } = new TaxTable();
+    public TaxTable STLS { get; } = new TaxTable();
 
-    public EvaluationContext.TaxTable this[TaxCategory category] => category switch
+    public TaxTable this[TaxCategory category] => category switch
     {
       TaxCategory.PAYG => PAYG,
       TaxCategory.HELP => HELP,

@@ -3,6 +3,9 @@ using CalculationEngine.Model;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Tree;
 using Xunit;
+using static CalculationEngine.Model.Evaluation.EarningsCategory;
+using static CalculationEngine.Model.Evaluation.Operations;
+using static CalculationEngine.Model.Evaluation.TaxCategory;
 
 namespace CalculationEngine.Tests.Model
 {
@@ -57,7 +60,7 @@ namespace CalculationEngine.Tests.Model
     [Fact]
     public void it_should_parse_a_simple_linq_expression()
     {
-      var graph  = Calculation.Parse(() => (100m + Amount * 100m) / 2m);
+      var graph  = Calculation.Parse(() => Tax(PAYG, YTD(Earnings) + YTD(Allowances) + YTD(Deductions) + YTD(Leave)) / 16m);
       var output = graph.Evaluate(new EvaluationContext());
 
       Assert.NotNull(graph);
@@ -65,19 +68,19 @@ namespace CalculationEngine.Tests.Model
     }
 
     private static Calculation BuildSimpleGraph() => new Calculation(
-      new BlockExpression(
+      new SigmaExpression(
         new AssignmentExpression(
           symbol: "A",
           operand: new TaxExpression(
             mode: TaxOperation.Add,
-            category: TaxCategory.PAYG,
+            category: PAYG,
             value: new RoundingExpression(
               method: MidpointRounding.AwayFromZero,
               value: new SigmaExpression(
-                new TallyExpression(EarningsCategory.Earnings),
-                new TallyExpression(EarningsCategory.Allowances),
-                new TallyExpression(EarningsCategory.Deductions),
-                new TallyExpression(EarningsCategory.Leave)
+                new TallyExpression(Earnings),
+                new TallyExpression(Allowances),
+                new TallyExpression(Deductions),
+                new TallyExpression(Leave)
               ),
               label: "Round to nearest dollar"
             ),
@@ -88,13 +91,9 @@ namespace CalculationEngine.Tests.Model
           symbol: "B",
           new TaxExpression(
             mode: TaxOperation.Calculate,
-            category: TaxCategory.HELP,
+            category: HELP,
             value: new ConstantExpression(10_000m)
           )
-        ),
-        new SigmaExpression(
-          new VariableExpression("A"),
-          new VariableExpression("B")
         )
       )
     );
