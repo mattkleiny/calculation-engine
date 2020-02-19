@@ -1,5 +1,8 @@
 using System;
+using System.Linq.Expressions;
+using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
+using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.AST
 {
@@ -8,6 +11,7 @@ namespace CalculationEngine.Model.AST
     public BinaryOperation       Operation { get; }
     public CalculationExpression Left      { get; }
     public CalculationExpression Right     { get; }
+    public string                Label     { get; }
 
     public BinaryExpression(BinaryOperation operation, CalculationExpression left, CalculationExpression right, string label = null)
     {
@@ -17,7 +21,7 @@ namespace CalculationEngine.Model.AST
       Label     = label ?? string.Empty;
     }
 
-    public override decimal Evaluate(CalculationContext context) => Operation switch
+    public override decimal Evaluate(EvaluationContext context) => Operation switch
     {
       BinaryOperation.Add => Left.Evaluate(context) + Right.Evaluate(context),
       BinaryOperation.Subtract => Left.Evaluate(context) - Right.Evaluate(context),
@@ -26,9 +30,21 @@ namespace CalculationEngine.Model.AST
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
-    public override T Accept<T>(ICalculationVisitor<T> visitor)
+    public override Expression Compile(CompilationContext context) => Operation switch
     {
-      return visitor.Visit(this);
+      BinaryOperation.Add => Expression.AddChecked(Left.Compile(context), Right.Compile(context)),
+      BinaryOperation.Subtract => Expression.SubtractChecked(Left.Compile(context), Right.Compile(context)),
+      BinaryOperation.Multiply => Expression.MultiplyChecked(Left.Compile(context), Right.Compile(context)),
+      BinaryOperation.Divide => Expression.Divide(Left.Compile(context), Right.Compile(context)),
+      _ => throw new ArgumentOutOfRangeException(nameof(Operation))
+    };
+
+    public override void Explain(ExplanationContext context)
+    {
+      if (!string.IsNullOrEmpty(Label))
+      {
+        context.Steps.Add(new CalculationStep(Label, ToString(), Evaluate(context.Evaluation)));
+      }
     }
 
     public override string ToString()

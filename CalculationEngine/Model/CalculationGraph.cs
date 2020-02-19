@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using CalculationEngine.Model.AST;
+using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
+using CalculationEngine.Model.Explanation;
 using BinaryExpression = CalculationEngine.Model.AST.BinaryExpression;
 using ConstantExpression = CalculationEngine.Model.AST.ConstantExpression;
 using UnaryExpression = CalculationEngine.Model.AST.UnaryExpression;
@@ -13,7 +15,7 @@ namespace CalculationEngine.Model
   // TODO: allow parsing graphs from text?
   // TODO: add a fluent 'builder' pattern on top of this
 
-  public delegate decimal Calculation(CalculationContext context);
+  public delegate decimal Calculation(EvaluationContext context);
 
   public sealed class CalculationGraph
   {
@@ -35,24 +37,25 @@ namespace CalculationEngine.Model
       this.expression = expression;
     }
 
-    public decimal Evaluate(CalculationContext context)
+    public decimal Evaluate(EvaluationContext context)
     {
       return expression.Evaluate(context);
     }
 
-    public CalculationExplanation ToExplanation(CalculationContext context)
+    public CalculationExplanation ToExplanation(EvaluationContext context)
     {
-      var visitor = new ExplanationVisitor(context);
-      var steps   = expression.Accept(visitor);
+      var explanation = new ExplanationContext(context);
 
-      return new CalculationExplanation(steps);
+      expression.Explain(explanation);
+
+      return new CalculationExplanation(explanation.Steps);
     }
 
     public Expression ToLinqExpression()
     {
-      var visitor = new CompilationVisitor();
+      var context = new CompilationContext();
 
-      return expression.Accept(visitor);
+      return expression.Compile(context);
     }
 
     public Calculation ToDelegate()
@@ -66,156 +69,6 @@ namespace CalculationEngine.Model
     public override string ToString()
     {
       return expression.ToString();
-    }
-
-    private sealed class ExplanationVisitor : ICalculationVisitor<IEnumerable<CalculationExplanation.Step>>
-    {
-      private readonly CalculationContext context;
-
-      public ExplanationVisitor(CalculationContext context)
-      {
-        this.context = context;
-      }
-
-      public IEnumerable<CalculationExplanation.Step> Visit(ConstantExpression expression)
-      {
-        if (!string.IsNullOrEmpty(expression.Label))
-        {
-          yield return new CalculationExplanation.Step(expression, expression.Evaluate(context));
-        }
-      }
-
-      public IEnumerable<CalculationExplanation.Step> Visit(UnaryExpression expression)
-      {
-        foreach (var step in expression.Operand.Accept(this))
-        {
-          yield return step;
-        }
-
-        if (!string.IsNullOrEmpty(expression.Label))
-        {
-          yield return new CalculationExplanation.Step(expression, expression.Evaluate(context));
-        }
-      }
-
-      public IEnumerable<CalculationExplanation.Step> Visit(BinaryExpression expression)
-      {
-        foreach (var step in expression.Left.Accept(this))
-        {
-          yield return step;
-        }
-
-        foreach (var step in expression.Right.Accept(this))
-        {
-          yield return step;
-        }
-
-        if (!string.IsNullOrEmpty(expression.Label))
-        {
-          yield return new CalculationExplanation.Step(expression, expression.Evaluate(context));
-        }
-      }
-
-      public IEnumerable<CalculationExplanation.Step> Visit(RoundingExpression expression)
-      {
-        foreach (var step in expression.Value.Accept(this))
-        {
-          yield return step;
-        }
-
-        if (!string.IsNullOrEmpty(expression.Label))
-        {
-          yield return new CalculationExplanation.Step(expression, expression.Evaluate(context));
-        }
-      }
-
-      public IEnumerable<CalculationExplanation.Step> Visit(ApplyTaxExpression expression)
-      {
-        foreach (var step in expression.Value.Accept(this))
-        {
-          yield return step;
-        }
-
-        if (!string.IsNullOrEmpty(expression.Label))
-        {
-          yield return new CalculationExplanation.Step(expression, expression.Evaluate(context));
-        }
-      }
-    }
-
-    private sealed class CompilationVisitor : ICalculationVisitor<Expression>
-    {
-      public Expression Visit(ConstantExpression expression)
-      {
-        return Expression.Constant(expression.Value, typeof(decimal));
-      }
-
-      public Expression Visit(UnaryExpression expression)
-      {
-        switch (expression.Operation)
-        {
-          case UnaryOperation.Not:
-            return Expression.Not(expression.Operand.Accept(this));
-
-          default:
-            throw new ArgumentOutOfRangeException();
-        }
-      }
-
-      public Expression Visit(BinaryExpression expression)
-      {
-        switch (expression.Operation)
-        {
-          case BinaryOperation.Add:
-            return Expression.AddChecked(
-              expression.Left.Accept(this),
-              expression.Right.Accept(this)
-            );
-
-          case BinaryOperation.Subtract:
-            return Expression.SubtractChecked(
-              expression.Left.Accept(this),
-              expression.Right.Accept(this)
-            );
-
-          case BinaryOperation.Multiply:
-            return Expression.MultiplyChecked(
-              expression.Left.Accept(this),
-              expression.Right.Accept(this)
-            );
-
-          case BinaryOperation.Divide:
-            return Expression.Divide(
-              expression.Left.Accept(this),
-              expression.Right.Accept(this)
-            );
-
-          default:
-            throw new ArgumentOutOfRangeException();
-        }
-      }
-
-      public Expression Visit(RoundingExpression expression)
-      {
-        var method = typeof(Math).GetMethod(nameof(Math.Round), new[] { typeof(decimal), typeof(MidpointRounding) });
-
-        if (method == null)
-        {
-          throw new Exception($"Unable to locate {nameof(Math)}.{nameof(RoundingExpression)} method; has the version of the .NET framework changed?");
-        }
-
-        var argument1 = expression.Value.Accept(this);
-        var argument2 = Expression.Constant(MidpointRounding.AwayFromZero);
-
-        return Expression.Call(method, argument1, argument2);
-      }
-
-      public Expression Visit(ApplyTaxExpression expression)
-      {
-        // TODO: how to convert evaluations like this to LINQ?
-      
-        return expression.Value.Accept(this);
-      }
     }
 
     private sealed class TranslationVisitor : ExpressionVisitor

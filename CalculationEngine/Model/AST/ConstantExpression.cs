@@ -1,11 +1,15 @@
 using System.Globalization;
+using System.Linq.Expressions;
+using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
+using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.AST
 {
   public sealed class ConstantExpression : CalculationExpression
   {
     public decimal Value { get; }
+    public string  Label { get; }
 
     public ConstantExpression(decimal value, string label = null)
     {
@@ -13,14 +17,22 @@ namespace CalculationEngine.Model.AST
       Label = label ?? string.Empty;
     }
 
-    public override decimal Evaluate(CalculationContext context)
+    public override decimal Evaluate(EvaluationContext context)
     {
       return Value;
     }
 
-    public override T Accept<T>(ICalculationVisitor<T> visitor)
+    public override Expression Compile(CompilationContext context)
     {
-      return visitor.Visit(this);
+      return Expression.Constant(Value);
+    }
+
+    public override void Explain(ExplanationContext context)
+    {
+      if (!string.IsNullOrEmpty(Label))
+      {
+        context.Steps.Add(new CalculationStep(Label, ToString(), Evaluate(context.Evaluation)));
+      }
     }
 
     public override string ToString()

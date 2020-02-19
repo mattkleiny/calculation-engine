@@ -1,5 +1,8 @@
 using System;
+using System.Linq.Expressions;
+using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
+using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.AST
 {
@@ -7,6 +10,7 @@ namespace CalculationEngine.Model.AST
   {
     public UnaryOperation        Operation { get; }
     public CalculationExpression Operand   { get; }
+    public string                Label     { get; }
 
     public UnaryExpression(UnaryOperation operation, CalculationExpression operand, string label = null)
     {
@@ -15,15 +19,24 @@ namespace CalculationEngine.Model.AST
       Label     = label ?? string.Empty;
     }
 
-    public override decimal Evaluate(CalculationContext context) => Operation switch
+    public override decimal Evaluate(EvaluationContext context) => Operation switch
     {
       UnaryOperation.Not => -Operand.Evaluate(context),
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
-    public override T Accept<T>(ICalculationVisitor<T> visitor)
+    public override Expression Compile(CompilationContext context) => Operation switch
     {
-      return visitor.Visit(this);
+      UnaryOperation.Not => Expression.Not(Operand.Compile(context)),
+      _ => throw new ArgumentOutOfRangeException(nameof(Operation))
+    };
+
+    public override void Explain(ExplanationContext context)
+    {
+      if (!string.IsNullOrEmpty(Label))
+      {
+        context.Steps.Add(new CalculationStep(Label, ToString(), Evaluate(context.Evaluation)));
+      }
     }
 
     public override string ToString()
@@ -34,7 +47,7 @@ namespace CalculationEngine.Model.AST
     private static string ConvertToString(UnaryOperation operation) => operation switch
     {
       UnaryOperation.Not => "-",
-      _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
+      _ => throw new ArgumentOutOfRangeException(nameof(operation))
     };
   }
 }

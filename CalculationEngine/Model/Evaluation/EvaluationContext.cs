@@ -9,7 +9,7 @@ namespace CalculationEngine.Model.Evaluation
     STLS
   }
 
-  public sealed class CalculationContext
+  public sealed class EvaluationContext
   {
     public TaxTableSet TaxTables { get; } = new TaxTableSet();
 

@@ -14,7 +14,7 @@ namespace CalculationEngine.Tests.Model
     public void it_should_evaluate_a_simple_graph()
     {
       var graph   = BuildSimpleGraph();
-      var context = new CalculationContext();
+      var context = new EvaluationContext();
       var output  = graph.Evaluate(context);
 
       Assert.True(output > 0m);
@@ -24,7 +24,7 @@ namespace CalculationEngine.Tests.Model
     public void it_should_compile_to_an_explanation()
     {
       var graph       = BuildSimpleGraph();
-      var context     = new CalculationContext();
+      var context     = new EvaluationContext();
       var explanation = graph.ToExplanation(context);
 
       Assert.NotNull(explanation);
@@ -47,7 +47,7 @@ namespace CalculationEngine.Tests.Model
 
       Assert.NotNull(calculation);
 
-      var context = new CalculationContext();
+      var context = new EvaluationContext();
       var output  = calculation(context);
 
       Assert.True(output > 0m);
@@ -67,7 +67,7 @@ namespace CalculationEngine.Tests.Model
     public void it_should_parse_a_simple_linq_expression()
     {
       var graph  = CalculationGraph.FromExpression(_ => (100m + Amount * 100m) / 2m);
-      var output = graph.Evaluate(new CalculationContext());
+      var output = graph.Evaluate(new EvaluationContext());
 
       Assert.NotNull(graph);
       Assert.Equal(150m, output);

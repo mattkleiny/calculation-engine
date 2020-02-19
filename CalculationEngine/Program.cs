@@ -9,7 +9,7 @@ namespace CalculationEngine
     public static void Main()
     {
       var graph       = CalculationGraph.FromExpression(_ => (100m + 200m) / 3m);
-      var context     = new CalculationContext();
+      var context     = new EvaluationContext();
       var explanation = graph.ToExplanation(context);
 
       Console.WriteLine("Steps: ");
