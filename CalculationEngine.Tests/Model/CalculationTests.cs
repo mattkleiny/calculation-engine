@@ -1,7 +1,7 @@
 using System;
 using CalculationEngine.Model;
-using CalculationEngine.Model.AST;
 using CalculationEngine.Model.Evaluation;
+using CalculationEngine.Model.Tree;
 using Xunit;
 
 namespace CalculationEngine.Tests.Model
@@ -28,6 +28,7 @@ namespace CalculationEngine.Tests.Model
       var explanation = graph.Explain(context);
 
       Assert.NotNull(explanation);
+      Assert.True(explanation.Count > 0);
     }
 
     [Fact]
@@ -66,19 +67,16 @@ namespace CalculationEngine.Tests.Model
     private static Calculation BuildSimpleGraph()
     {
       return new Calculation(
-        new ApplyTaxExpression(
+        new TaxExpression(
+          TaxOperation.Add,
           TaxCategory.PAYG,
           new RoundingExpression(
             MidpointRounding.AwayFromZero,
-            new BinaryExpression(
-              BinaryOperation.Divide,
-              new BinaryExpression(
-                BinaryOperation.Multiply,
-                new ConstantExpression(10m),
-                new ConstantExpression(20m),
-                label: "Sum Year-to-dates"
-              ),
-              new ConstantExpression(2.5m)
+            new SigmaExpression(
+              new TallyExpression(EarningsCategory.Earnings),
+              new TallyExpression(EarningsCategory.Allowances),
+              new TallyExpression(EarningsCategory.Deductions),
+              new TallyExpression(EarningsCategory.Leave)
             ),
             label: "Round to nearest dollar"
           ),

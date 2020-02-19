@@ -4,7 +4,7 @@ using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
-namespace CalculationEngine.Model.AST
+namespace CalculationEngine.Model.Tree
 {
   internal sealed class BinaryExpression : CalculationExpression
   {
@@ -41,6 +41,9 @@ namespace CalculationEngine.Model.AST
 
     public override void Explain(ExplanationContext context)
     {
+      Left.Explain(context);
+      Right.Explain(context);
+
       if (!string.IsNullOrEmpty(Label))
       {
         context.Steps.Add(new CalculationStep(Label, ToString(), Evaluate(context.Evaluation)));

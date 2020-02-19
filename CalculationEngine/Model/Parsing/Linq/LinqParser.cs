@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using CalculationEngine.Model.AST;
+using CalculationEngine.Model.Tree;
 using BinaryExpression = System.Linq.Expressions.BinaryExpression;
 using ConstantExpression = System.Linq.Expressions.ConstantExpression;
 using UnaryExpression = System.Linq.Expressions.UnaryExpression;
 
-namespace CalculationEngine.Model.Parsing.LINQ
+namespace CalculationEngine.Model.Parsing.Linq
 {
   internal static class LinqParser
   {
@@ -28,7 +28,7 @@ namespace CalculationEngine.Model.Parsing.LINQ
       {
         base.VisitConstant(node);
 
-        Expressions.Enqueue(new AST.ConstantExpression(Convert.ToDecimal(node.Value)));
+        Expressions.Enqueue(new Tree.ConstantExpression(Convert.ToDecimal(node.Value)));
 
         return node;
       }
@@ -39,7 +39,7 @@ namespace CalculationEngine.Model.Parsing.LINQ
 
         var type = ConvertUnaryOperator(node.NodeType);
 
-        Expressions.Enqueue(new AST.UnaryExpression(type, Expressions.Dequeue()));
+        Expressions.Enqueue(new Tree.UnaryExpression(type, Expressions.Dequeue()));
 
         return node;
       }
@@ -50,7 +50,7 @@ namespace CalculationEngine.Model.Parsing.LINQ
 
         var type = ConvertBinaryOperator(node.NodeType);
 
-        Expressions.Enqueue(new AST.BinaryExpression(type, Expressions.Dequeue(), Expressions.Dequeue()));
+        Expressions.Enqueue(new Tree.BinaryExpression(type, Expressions.Dequeue(), Expressions.Dequeue()));
 
         return node;
       }
@@ -64,11 +64,11 @@ namespace CalculationEngine.Model.Parsing.LINQ
         switch (node.Member)
         {
           case FieldInfo field:
-            Expressions.Enqueue(new AST.ConstantExpression(Convert.ToDecimal(field.GetValue(owner))));
+            Expressions.Enqueue(new Tree.ConstantExpression(Convert.ToDecimal(field.GetValue(owner))));
             break;
 
           case PropertyInfo property:
-            Expressions.Enqueue(new AST.ConstantExpression(Convert.ToDecimal(property.GetValue(owner))));
+            Expressions.Enqueue(new Tree.ConstantExpression(Convert.ToDecimal(property.GetValue(owner))));
             break;
 
           case MethodInfo _:

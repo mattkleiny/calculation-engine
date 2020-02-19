@@ -1,11 +1,11 @@
 using System;
 using System.Linq.Expressions;
-using CalculationEngine.Model.AST;
 using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
-using CalculationEngine.Model.Parsing.LINQ;
+using CalculationEngine.Model.Parsing.Linq;
 using CalculationEngine.Model.Parsing.Roslyn;
+using CalculationEngine.Model.Tree;
 
 namespace CalculationEngine.Model
 {

@@ -1,5 +1,5 @@
 using System;
-using CalculationEngine.Model.AST;
+using CalculationEngine.Model.Tree;
 
 namespace CalculationEngine.Model.Parsing.Roslyn
 {

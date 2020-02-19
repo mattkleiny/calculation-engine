@@ -4,7 +4,7 @@ using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
-namespace CalculationEngine.Model.AST
+namespace CalculationEngine.Model.Tree
 {
   internal sealed class ConstantExpression : CalculationExpression
   {
