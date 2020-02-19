@@ -4,7 +4,7 @@ using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
-namespace CalculationEngine.Model.Tree
+namespace CalculationEngine.Model.Nodes
 {
   internal sealed class RoundingExpression : CalculationExpression
   {
@@ -19,14 +19,14 @@ namespace CalculationEngine.Model.Tree
       Label  = label ?? string.Empty;
     }
 
-    public override decimal Evaluate(EvaluationContext context)
+    internal override decimal Evaluate(EvaluationContext context)
     {
       var value = Value.Evaluate(context);
 
       return Math.Round(value, Method);
     }
 
-    public override Expression Compile(CompilationContext context)
+    internal override Expression Compile(CompilationContext context)
     {
       var method = typeof(Math).GetMethod(nameof(Math.Round), new[] { typeof(decimal), typeof(MidpointRounding) });
 
@@ -41,7 +41,7 @@ namespace CalculationEngine.Model.Tree
       return Expression.Call(method, argument1, argument2);
     }
 
-    public override void Explain(ExplanationContext context)
+    internal override void Explain(ExplanationContext context)
     {
       Value.Explain(context);
 

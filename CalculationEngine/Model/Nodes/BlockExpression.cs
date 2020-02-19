@@ -4,7 +4,7 @@ using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
-namespace CalculationEngine.Model.Tree
+namespace CalculationEngine.Model.Nodes
 {
   internal sealed class BlockExpression : CalculationExpression
   {
@@ -15,7 +15,7 @@ namespace CalculationEngine.Model.Tree
       Expressions = expressions;
     }
 
-    public override decimal Evaluate(EvaluationContext context)
+    internal override decimal Evaluate(EvaluationContext context)
     {
       if (Expressions.Length == 0)
       {
@@ -35,12 +35,12 @@ namespace CalculationEngine.Model.Tree
       return Expressions[^1].Evaluate(context);
     }
 
-    public override Expression Compile(CompilationContext context)
+    internal override Expression Compile(CompilationContext context)
     {
       return Expression.Block(Expressions.Select(_ => _.Compile(context)));
     }
 
-    public override void Explain(ExplanationContext context)
+    internal override void Explain(ExplanationContext context)
     {
       foreach (var expression in Expressions)
       {

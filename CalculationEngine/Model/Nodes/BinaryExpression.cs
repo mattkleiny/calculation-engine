@@ -4,7 +4,7 @@ using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
-namespace CalculationEngine.Model.Tree
+namespace CalculationEngine.Model.Nodes
 {
   internal sealed class BinaryExpression : CalculationExpression
   {
@@ -21,7 +21,7 @@ namespace CalculationEngine.Model.Tree
       Label     = label ?? string.Empty;
     }
 
-    public override decimal Evaluate(EvaluationContext context) => Operation switch
+    internal override decimal Evaluate(EvaluationContext context) => Operation switch
     {
       BinaryOperation.Add => Left.Evaluate(context) + Right.Evaluate(context),
       BinaryOperation.Subtract => Left.Evaluate(context) - Right.Evaluate(context),
@@ -30,7 +30,7 @@ namespace CalculationEngine.Model.Tree
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
-    public override Expression Compile(CompilationContext context) => Operation switch
+    internal override Expression Compile(CompilationContext context) => Operation switch
     {
       BinaryOperation.Add => Expression.AddChecked(Left.Compile(context), Right.Compile(context)),
       BinaryOperation.Subtract => Expression.SubtractChecked(Left.Compile(context), Right.Compile(context)),
@@ -39,7 +39,7 @@ namespace CalculationEngine.Model.Tree
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
-    public override void Explain(ExplanationContext context)
+    internal override void Explain(ExplanationContext context)
     {
       Left.Explain(context);
       Right.Explain(context);

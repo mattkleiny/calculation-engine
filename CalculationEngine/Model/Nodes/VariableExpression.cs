@@ -3,7 +3,7 @@ using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
-namespace CalculationEngine.Model.Tree
+namespace CalculationEngine.Model.Nodes
 {
   internal sealed class VariableExpression : CalculationExpression
   {
@@ -14,17 +14,17 @@ namespace CalculationEngine.Model.Tree
       Symbol = symbol;
     }
 
-    public override decimal Evaluate(EvaluationContext context)
+    internal override decimal Evaluate(EvaluationContext context)
     {
       return context.Variables[Symbol];
     }
 
-    public override Expression Compile(CompilationContext context)
+    internal override Expression Compile(CompilationContext context)
     {
       return Expression.Variable(typeof(decimal), Symbol.Name);
     }
 
-    public override void Explain(ExplanationContext context)
+    internal override void Explain(ExplanationContext context)
     {
     }
 

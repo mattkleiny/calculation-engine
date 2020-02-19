@@ -5,7 +5,7 @@ using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
-namespace CalculationEngine.Model.Tree
+namespace CalculationEngine.Model.Nodes
 {
   internal sealed class SigmaExpression : CalculationExpression
   {
@@ -16,12 +16,12 @@ namespace CalculationEngine.Model.Tree
       Expressions = expressions;
     }
 
-    public override decimal Evaluate(EvaluationContext context)
+    internal override decimal Evaluate(EvaluationContext context)
     {
       return Expressions.Sum(expression => expression.Evaluate(context));
     }
 
-    public override Expression Compile(CompilationContext context)
+    internal override Expression Compile(CompilationContext context)
     {
       var queue = new Queue<Expression>();
 
@@ -40,7 +40,7 @@ namespace CalculationEngine.Model.Tree
       return latest;
     }
 
-    public override void Explain(ExplanationContext context)
+    internal override void Explain(ExplanationContext context)
     {
       context.Steps.Add(new CalculationStep("Σ", ToString(), Evaluate(context.Evaluation)));
     }

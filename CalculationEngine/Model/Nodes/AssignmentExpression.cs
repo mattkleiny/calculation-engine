@@ -3,7 +3,7 @@ using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
-namespace CalculationEngine.Model.Tree
+namespace CalculationEngine.Model.Nodes
 {
   internal sealed class AssignmentExpression : CalculationExpression
   {
@@ -16,7 +16,7 @@ namespace CalculationEngine.Model.Tree
       Operand = operand;
     }
 
-    public override decimal Evaluate(EvaluationContext context)
+    internal override decimal Evaluate(EvaluationContext context)
     {
       var amount = Operand.Evaluate(context);
 
@@ -25,7 +25,7 @@ namespace CalculationEngine.Model.Tree
       return amount;
     }
 
-    public override Expression Compile(CompilationContext context)
+    internal override Expression Compile(CompilationContext context)
     {
       return Expression.Assign(
         Expression.Variable(typeof(decimal), Symbol.Name),
@@ -33,7 +33,7 @@ namespace CalculationEngine.Model.Tree
       );
     }
 
-    public override void Explain(ExplanationContext context)
+    internal override void Explain(ExplanationContext context)
     {
       Operand.Explain(context);
     }

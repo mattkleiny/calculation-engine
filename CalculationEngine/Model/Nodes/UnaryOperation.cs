@@ -1,4 +1,4 @@
-namespace CalculationEngine.Model.Tree
+namespace CalculationEngine.Model.Nodes
 {
   internal enum UnaryOperation
   {

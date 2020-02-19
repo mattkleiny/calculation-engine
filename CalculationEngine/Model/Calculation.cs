@@ -1,24 +1,25 @@
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
-using CalculationEngine.Model.Parsing.Linq;
-using CalculationEngine.Model.Parsing.Roslyn;
-using CalculationEngine.Model.Tree;
+using CalculationEngine.Model.Nodes;
+using BinaryExpression = CalculationEngine.Model.Nodes.BinaryExpression;
+using ConstantExpression = CalculationEngine.Model.Nodes.ConstantExpression;
+using UnaryExpression = CalculationEngine.Model.Nodes.UnaryExpression;
 
 namespace CalculationEngine.Model
 {
-  // TODO: add a fluent 'builder' pattern on top of this
-
-  public sealed class Calculation
+  public readonly struct Calculation
   {
+    public static Calculation Σ(params Calculation[] expressions)               => new SigmaExpression(expressions.Select(_ => _.expression).ToArray());
+    public static Calculation Tax(TaxCategory category, Calculation expression) => new TaxExpression(category, expression);
+    public static Calculation YTD(EarningsCategory category)                    => new TallyExpression(category);
+
     private readonly CalculationExpression expression;
 
-    public static Calculation Parse(string path)                          => new Calculation(RoslynParser.Parse(path));
-    public static Calculation Parse(Expression<Func<decimal>> expression) => new Calculation(LinqParser.Parse(expression));
-
-    internal Calculation(CalculationExpression expression)
+    private Calculation(CalculationExpression expression)
     {
       this.expression = expression;
     }
@@ -28,13 +29,13 @@ namespace CalculationEngine.Model
       return expression.Evaluate(context);
     }
 
-    public Func<decimal> Compile()
+    public Func<EvaluationContext, decimal> Compile()
     {
       var context    = new CompilationContext();
       var tree       = expression.Compile(context);
       var invocation = Expression.Lambda(tree).Compile();
 
-      return () => (decimal) invocation.DynamicInvoke();
+      return _ => (decimal) invocation.DynamicInvoke();
     }
 
     public CalculationExplanation Explain(EvaluationContext context)
@@ -46,6 +47,19 @@ namespace CalculationEngine.Model
       return new CalculationExplanation(explanation.Steps);
     }
 
-    public override string ToString() => expression.ToString();
+    public override string ToString()
+    {
+      return expression.ToString();
+    }
+    
+    public static implicit operator Calculation(decimal value)                    => new Calculation(new ConstantExpression(value));
+    public static implicit operator Calculation(CalculationExpression expression) => new Calculation(expression);
+    public static implicit operator CalculationExpression(Calculation expression) => expression.expression;
+
+    public static Calculation operator -(Calculation a)                => new UnaryExpression(UnaryOperation.Not, a.expression);
+    public static Calculation operator +(Calculation a, Calculation b) => new BinaryExpression(BinaryOperation.Add, a.expression, b.expression);
+    public static Calculation operator -(Calculation a, Calculation b) => new BinaryExpression(BinaryOperation.Subtract, a.expression, b.expression);
+    public static Calculation operator *(Calculation a, Calculation b) => new BinaryExpression(BinaryOperation.Multiply, a.expression, b.expression);
+    public static Calculation operator /(Calculation a, Calculation b) => new BinaryExpression(BinaryOperation.Divide, a.expression, b.expression);
   }
 }

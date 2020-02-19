@@ -4,7 +4,7 @@ using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
-namespace CalculationEngine.Model.Tree
+namespace CalculationEngine.Model.Nodes
 {
   internal sealed class UnaryExpression : CalculationExpression
   {
@@ -19,19 +19,19 @@ namespace CalculationEngine.Model.Tree
       Label     = label ?? string.Empty;
     }
 
-    public override decimal Evaluate(EvaluationContext context) => Operation switch
+    internal override decimal Evaluate(EvaluationContext context) => Operation switch
     {
       UnaryOperation.Not => -Operand.Evaluate(context),
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
-    public override Expression Compile(CompilationContext context) => Operation switch
+    internal override Expression Compile(CompilationContext context) => Operation switch
     {
       UnaryOperation.Not => Expression.Not(Operand.Compile(context)),
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
-    public override void Explain(ExplanationContext context)
+    internal override void Explain(ExplanationContext context)
     {
       if (!string.IsNullOrEmpty(Label))
       {
