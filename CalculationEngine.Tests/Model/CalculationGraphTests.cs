@@ -1,6 +1,7 @@
 using System;
 using CalculationEngine.Model;
 using CalculationEngine.Model.AST;
+using CalculationEngine.Model.Evaluation;
 using Xunit;
 
 namespace CalculationEngine.Tests.Model
@@ -12,8 +13,9 @@ namespace CalculationEngine.Tests.Model
     [Fact]
     public void it_should_evaluate_a_simple_graph()
     {
-      var graph  = BuildSimpleGraph();
-      var output = graph.Evaluate();
+      var graph   = BuildSimpleGraph();
+      var context = new CalculationContext();
+      var output  = graph.Evaluate(context);
 
       Assert.True(output > 0m);
     }
@@ -22,7 +24,8 @@ namespace CalculationEngine.Tests.Model
     public void it_should_compile_to_an_explanation()
     {
       var graph       = BuildSimpleGraph();
-      var explanation = graph.ToExplanation();
+      var context     = new CalculationContext();
+      var explanation = graph.ToExplanation(context);
 
       Assert.NotNull(explanation);
     }
@@ -44,7 +47,8 @@ namespace CalculationEngine.Tests.Model
 
       Assert.NotNull(calculation);
 
-      var output = calculation();
+      var context = new CalculationContext();
+      var output  = calculation(context);
 
       Assert.True(output > 0m);
     }
@@ -62,8 +66,8 @@ namespace CalculationEngine.Tests.Model
     [Fact]
     public void it_should_parse_a_simple_linq_expression()
     {
-      var graph  = CalculationGraph.FromExpression(() => (100m + Amount * 100m) / 2m);
-      var output = graph.Evaluate();
+      var graph  = CalculationGraph.FromExpression(_ => (100m + Amount * 100m) / 2m);
+      var output = graph.Evaluate(new CalculationContext());
 
       Assert.NotNull(graph);
       Assert.Equal(150m, output);
@@ -72,19 +76,23 @@ namespace CalculationEngine.Tests.Model
     private static CalculationGraph BuildSimpleGraph()
     {
       return new CalculationGraph(
-        new RoundingExpression(
-          MidpointRounding.AwayFromZero,
-          new BinaryExpression(
-            BinaryOperation.Divide,
+        new ApplyTaxExpression(
+          TaxCategory.PAYG,
+          new RoundingExpression(
+            MidpointRounding.AwayFromZero,
             new BinaryExpression(
-              BinaryOperation.Multiply,
-              new ConstantExpression(10m),
-              new ConstantExpression(20m),
-              label: "Sum Year-to-dates"
+              BinaryOperation.Divide,
+              new BinaryExpression(
+                BinaryOperation.Multiply,
+                new ConstantExpression(10m),
+                new ConstantExpression(20m),
+                label: "Sum Year-to-dates"
+              ),
+              new ConstantExpression(2.5m)
             ),
-            new ConstantExpression(2.5m)
+            label: "Round to nearest dollar"
           ),
-          label: "Round to nearest dollar"
+          label: "Apply PAYG amounts"
         )
       );
     }

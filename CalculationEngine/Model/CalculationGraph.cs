@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using CalculationEngine.Model.AST;
+using CalculationEngine.Model.Evaluation;
 using BinaryExpression = CalculationEngine.Model.AST.BinaryExpression;
 using ConstantExpression = CalculationEngine.Model.AST.ConstantExpression;
 using UnaryExpression = CalculationEngine.Model.AST.UnaryExpression;
@@ -12,7 +13,7 @@ namespace CalculationEngine.Model
   // TODO: allow parsing graphs from text?
   // TODO: add a fluent 'builder' pattern on top of this
 
-  public delegate decimal Calculation();
+  public delegate decimal Calculation(CalculationContext context);
 
   public sealed class CalculationGraph
   {
@@ -24,7 +25,9 @@ namespace CalculationEngine.Model
 
       visitor.Visit(expression);
 
-      return new CalculationGraph(visitor.Expressions.Dequeue());
+      var result = visitor.Expressions.Dequeue();
+
+      return new CalculationGraph(result);
     }
 
     public CalculationGraph(CalculationExpression expression)
@@ -32,24 +35,32 @@ namespace CalculationEngine.Model
       this.expression = expression;
     }
 
-    public decimal Evaluate() => expression.Evaluate();
+    public decimal Evaluate(CalculationContext context)
+    {
+      return expression.Evaluate(context);
+    }
+
+    public CalculationExplanation ToExplanation(CalculationContext context)
+    {
+      var visitor = new ExplanationVisitor(context);
+      var steps   = expression.Accept(visitor);
+
+      return new CalculationExplanation(steps);
+    }
+
+    public Expression ToLinqExpression()
+    {
+      var visitor = new CompilationVisitor();
+
+      return expression.Accept(visitor);
+    }
 
     public Calculation ToDelegate()
     {
       var expression = ToLinqExpression();
       var invocation = Expression.Lambda(expression).Compile();
 
-      return () => (decimal) invocation.DynamicInvoke();
-    }
-
-    public Expression ToLinqExpression()
-    {
-      return expression.Accept(new CompilationVisitor());
-    }
-
-    public CalculationExplanation ToExplanation()
-    {
-      return new CalculationExplanation(expression.Accept(new ExplanationVisitor()));
+      return context => (decimal) invocation.DynamicInvoke();
     }
 
     public override string ToString()
@@ -57,17 +68,24 @@ namespace CalculationEngine.Model
       return expression.ToString();
     }
 
-    private sealed class ExplanationVisitor : CalculationVisitor<IEnumerable<CalculationExplanation.Step>>
+    private sealed class ExplanationVisitor : ICalculationVisitor<IEnumerable<CalculationExplanation.Step>>
     {
-      public override IEnumerable<CalculationExplanation.Step> Visit(ConstantExpression expression)
+      private readonly CalculationContext context;
+
+      public ExplanationVisitor(CalculationContext context)
+      {
+        this.context = context;
+      }
+
+      public IEnumerable<CalculationExplanation.Step> Visit(ConstantExpression expression)
       {
         if (!string.IsNullOrEmpty(expression.Label))
         {
-          yield return new CalculationExplanation.Step(expression);
+          yield return new CalculationExplanation.Step(expression, expression.Evaluate(context));
         }
       }
 
-      public override IEnumerable<CalculationExplanation.Step> Visit(UnaryExpression expression)
+      public IEnumerable<CalculationExplanation.Step> Visit(UnaryExpression expression)
       {
         foreach (var step in expression.Operand.Accept(this))
         {
@@ -76,11 +94,11 @@ namespace CalculationEngine.Model
 
         if (!string.IsNullOrEmpty(expression.Label))
         {
-          yield return new CalculationExplanation.Step(expression);
+          yield return new CalculationExplanation.Step(expression, expression.Evaluate(context));
         }
       }
 
-      public override IEnumerable<CalculationExplanation.Step> Visit(BinaryExpression expression)
+      public IEnumerable<CalculationExplanation.Step> Visit(BinaryExpression expression)
       {
         foreach (var step in expression.Left.Accept(this))
         {
@@ -94,11 +112,11 @@ namespace CalculationEngine.Model
 
         if (!string.IsNullOrEmpty(expression.Label))
         {
-          yield return new CalculationExplanation.Step(expression);
+          yield return new CalculationExplanation.Step(expression, expression.Evaluate(context));
         }
       }
 
-      public override IEnumerable<CalculationExplanation.Step> Visit(RoundingExpression expression)
+      public IEnumerable<CalculationExplanation.Step> Visit(RoundingExpression expression)
       {
         foreach (var step in expression.Value.Accept(this))
         {
@@ -107,19 +125,32 @@ namespace CalculationEngine.Model
 
         if (!string.IsNullOrEmpty(expression.Label))
         {
-          yield return new CalculationExplanation.Step(expression);
+          yield return new CalculationExplanation.Step(expression, expression.Evaluate(context));
+        }
+      }
+
+      public IEnumerable<CalculationExplanation.Step> Visit(ApplyTaxExpression expression)
+      {
+        foreach (var step in expression.Value.Accept(this))
+        {
+          yield return step;
+        }
+
+        if (!string.IsNullOrEmpty(expression.Label))
+        {
+          yield return new CalculationExplanation.Step(expression, expression.Evaluate(context));
         }
       }
     }
 
-    private sealed class CompilationVisitor : CalculationVisitor<Expression>
+    private sealed class CompilationVisitor : ICalculationVisitor<Expression>
     {
-      public override Expression Visit(ConstantExpression expression)
+      public Expression Visit(ConstantExpression expression)
       {
         return Expression.Constant(expression.Value, typeof(decimal));
       }
 
-      public override Expression Visit(UnaryExpression expression)
+      public Expression Visit(UnaryExpression expression)
       {
         switch (expression.Operation)
         {
@@ -131,7 +162,7 @@ namespace CalculationEngine.Model
         }
       }
 
-      public override Expression Visit(BinaryExpression expression)
+      public Expression Visit(BinaryExpression expression)
       {
         switch (expression.Operation)
         {
@@ -164,7 +195,7 @@ namespace CalculationEngine.Model
         }
       }
 
-      public override Expression Visit(RoundingExpression expression)
+      public Expression Visit(RoundingExpression expression)
       {
         var method = typeof(Math).GetMethod(nameof(Math.Round), new[] { typeof(decimal), typeof(MidpointRounding) });
 
@@ -177,6 +208,13 @@ namespace CalculationEngine.Model
         var argument2 = Expression.Constant(MidpointRounding.AwayFromZero);
 
         return Expression.Call(method, argument1, argument2);
+      }
+
+      public Expression Visit(ApplyTaxExpression expression)
+      {
+        // TODO: how to convert evaluations like this to LINQ?
+      
+        return expression.Value.Accept(this);
       }
     }
 
@@ -251,7 +289,6 @@ namespace CalculationEngine.Model
       private static UnaryOperation ConvertUnaryOperator(ExpressionType type) => type switch
       {
         ExpressionType.Not => UnaryOperation.Not,
-        
         _ => throw new ArgumentOutOfRangeException(nameof(type))
       };
 
@@ -264,7 +301,6 @@ namespace CalculationEngine.Model
         ExpressionType.Multiply => BinaryOperation.Multiply,
         ExpressionType.MultiplyChecked => BinaryOperation.Multiply,
         ExpressionType.Divide => BinaryOperation.Divide,
-
         _ => throw new ArgumentOutOfRangeException(nameof(type))
       };
     }

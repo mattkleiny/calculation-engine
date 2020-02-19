@@ -1,4 +1,5 @@
 using System;
+using CalculationEngine.Model.Evaluation;
 
 namespace CalculationEngine.Model.AST
 {
@@ -14,9 +15,21 @@ namespace CalculationEngine.Model.AST
       Label  = label ?? string.Empty;
     }
 
-    public override decimal Evaluate() => Math.Round(Value.Evaluate(), Method);
+    public override decimal Evaluate(CalculationContext context)
+    {
+      var value = Value.Evaluate(context);
 
-    public override T      Accept<T>(CalculationVisitor<T> visitor) => visitor.Visit(this);
-    public override string ToString()                               => $"Round {Value} {Method}";
+      return Math.Round(value, Method);
+    }
+
+    public override T Accept<T>(ICalculationVisitor<T> visitor)
+    {
+      return visitor.Visit(this);
+    }
+
+    public override string ToString()
+    {
+      return $"(Round {Method} {Value})";
+    }
   }
 }

@@ -1,4 +1,5 @@
 using System;
+using CalculationEngine.Model.Evaluation;
 
 namespace CalculationEngine.Model.AST
 {
@@ -14,20 +15,25 @@ namespace CalculationEngine.Model.AST
       Label     = label ?? string.Empty;
     }
 
-    public override decimal Evaluate() => Operation switch
+    public override decimal Evaluate(CalculationContext context) => Operation switch
     {
-      UnaryOperation.Not => -Operand.Evaluate(),
-
+      UnaryOperation.Not => -Operand.Evaluate(context),
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
-    public override T      Accept<T>(CalculationVisitor<T> visitor) => visitor.Visit(this);
-    public override string ToString()                               => $"{ConvertToString(Operation)} {Operand}";
+    public override T Accept<T>(ICalculationVisitor<T> visitor)
+    {
+      return visitor.Visit(this);
+    }
+
+    public override string ToString()
+    {
+      return $"({ConvertToString(Operation)} {Operand})";
+    }
 
     private static string ConvertToString(UnaryOperation operation) => operation switch
     {
       UnaryOperation.Not => "-",
-
       _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
     };
   }

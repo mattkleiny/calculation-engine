@@ -1,4 +1,5 @@
 using System.Globalization;
+using CalculationEngine.Model.Evaluation;
 
 namespace CalculationEngine.Model.AST
 {
@@ -12,9 +13,19 @@ namespace CalculationEngine.Model.AST
       Label = label ?? string.Empty;
     }
 
-    public override decimal Evaluate() => Value;
+    public override decimal Evaluate(CalculationContext context)
+    {
+      return Value;
+    }
 
-    public override T      Accept<T>(CalculationVisitor<T> visitor) => visitor.Visit(this);
-    public override string ToString()                               => Value.ToString("F", CultureInfo.InvariantCulture);
+    public override T Accept<T>(ICalculationVisitor<T> visitor)
+    {
+      return visitor.Visit(this);
+    }
+
+    public override string ToString()
+    {
+      return Value.ToString("F", CultureInfo.InvariantCulture);
+    }
   }
 }

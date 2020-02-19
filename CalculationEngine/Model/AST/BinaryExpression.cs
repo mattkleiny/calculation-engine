@@ -1,4 +1,5 @@
 using System;
+using CalculationEngine.Model.Evaluation;
 
 namespace CalculationEngine.Model.AST
 {
@@ -16,18 +17,24 @@ namespace CalculationEngine.Model.AST
       Label     = label ?? string.Empty;
     }
 
-    public override decimal Evaluate() => Operation switch
+    public override decimal Evaluate(CalculationContext context) => Operation switch
     {
-      BinaryOperation.Add => Left.Evaluate() + Right.Evaluate(),
-      BinaryOperation.Subtract => Left.Evaluate() - Right.Evaluate(),
-      BinaryOperation.Multiply => Left.Evaluate() * Right.Evaluate(),
-      BinaryOperation.Divide => Left.Evaluate() / Right.Evaluate(),
-
+      BinaryOperation.Add => Left.Evaluate(context) + Right.Evaluate(context),
+      BinaryOperation.Subtract => Left.Evaluate(context) - Right.Evaluate(context),
+      BinaryOperation.Multiply => Left.Evaluate(context) * Right.Evaluate(context),
+      BinaryOperation.Divide => Left.Evaluate(context) / Right.Evaluate(context),
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
-    public override T      Accept<T>(CalculationVisitor<T> visitor) => visitor.Visit(this);
-    public override string ToString()                               => $"({Left} {ConvertToString(Operation)} {Right})";
+    public override T Accept<T>(ICalculationVisitor<T> visitor)
+    {
+      return visitor.Visit(this);
+    }
+
+    public override string ToString()
+    {
+      return $"({Left} {ConvertToString(Operation)} {Right})";
+    }
 
     private static string ConvertToString(BinaryOperation operation) => operation switch
     {
@@ -35,7 +42,6 @@ namespace CalculationEngine.Model.AST
       BinaryOperation.Subtract => "-",
       BinaryOperation.Multiply => "*",
       BinaryOperation.Divide => "/",
-
       _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
     };
   }
