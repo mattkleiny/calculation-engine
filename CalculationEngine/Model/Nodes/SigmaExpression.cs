@@ -45,6 +45,11 @@ namespace CalculationEngine.Model.Nodes
       context.Steps.Add(new CalculationStep("Σ", ToString(), Evaluate(context.Evaluation)));
     }
 
+    internal override T Accept<T>(IVisitor<T> visitor)
+    {
+      return visitor.Visit(this);
+    }
+
     public override string ToString()
     {
       return $"(Σ {string.Join(" + ", Expressions.Select(_ => _.ToString()))})";

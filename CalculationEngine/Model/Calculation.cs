@@ -47,11 +47,16 @@ namespace CalculationEngine.Model
       return new CalculationExplanation(explanation.Steps);
     }
 
+    internal T Accept<T>(IVisitor<T> visitor)
+    {
+      return expression.Accept(visitor);
+    }
+
     public override string ToString()
     {
       return expression.ToString();
     }
-    
+
     public static implicit operator Calculation(decimal value)                    => new Calculation(new ConstantExpression(value));
     public static implicit operator Calculation(CalculationExpression expression) => new Calculation(expression);
     public static implicit operator CalculationExpression(Calculation expression) => expression.expression;

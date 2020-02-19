@@ -35,6 +35,11 @@ namespace CalculationEngine.Model.Nodes
       }
     }
 
+    internal override T Accept<T>(IVisitor<T> visitor)
+    {
+      return visitor.Visit(this);
+    }
+
     public override string ToString()
     {
       return Value.ToString("F", CultureInfo.InvariantCulture);

@@ -42,6 +42,11 @@ namespace CalculationEngine.Model.Nodes
       }
     }
 
+    internal override T Accept<T>(IVisitor<T> visitor)
+    {
+      return visitor.Visit(this);
+    }
+
     public override string ToString()
     {
       return $"(Calculate {Category} Tax {Value})";

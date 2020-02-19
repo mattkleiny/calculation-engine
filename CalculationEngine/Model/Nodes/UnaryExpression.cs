@@ -44,6 +44,11 @@ namespace CalculationEngine.Model.Nodes
       return $"({ConvertToString(Operation)} {Operand})";
     }
 
+    internal override T Accept<T>(IVisitor<T> visitor)
+    {
+      return visitor.Visit(this);
+    }
+
     private static string ConvertToString(UnaryOperation operation) => operation switch
     {
       UnaryOperation.Not => "-",

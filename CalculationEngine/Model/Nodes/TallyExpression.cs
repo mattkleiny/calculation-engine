@@ -31,6 +31,11 @@ namespace CalculationEngine.Model.Nodes
       context.Steps.Add(new CalculationStep($"Tally {Category} YTD", ToString(), Evaluate(context.Evaluation)));
     }
 
+    internal override T Accept<T>(IVisitor<T> visitor)
+    {
+      return visitor.Visit(this);
+    }
+
     public override string ToString()
     {
       return $"(YTD {Category})";
