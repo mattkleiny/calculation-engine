@@ -1,11 +1,14 @@
+using System;
 using CalculationEngine.Model;
+using CalculationEngine.Model.AST;
 using Xunit;
-using static CalculationEngine.Model.CalculationExpression;
 
 namespace CalculationEngine.Tests.Model
 {
   public class CalculationGraphTests
   {
+    private static readonly decimal Amount = 2m;
+
     [Fact]
     public void it_should_evaluate_a_simple_graph()
     {
@@ -56,19 +59,34 @@ namespace CalculationEngine.Tests.Model
       Assert.True(output.Contains("2.5"));
     }
 
+    [Fact]
+    public void it_should_parse_a_simple_linq_expression()
+    {
+      var graph  = CalculationGraph.FromExpression(() => (100m + Amount * 100m) / 2m);
+      var output = graph.Evaluate();
+
+      Assert.NotNull(graph);
+      Assert.Equal(150m, output);
+    }
+
     private static CalculationGraph BuildSimpleGraph()
     {
-      return new CalculationGraph(new Round(
-        RoundingMethod.AwayFromZero,
-        new Grouping(
-          new Binary(
-            BinaryOperator.Divide,
-            new Grouping(
-              new Binary(
-                BinaryOperator.Times,
-                new Constant(10m),
-                new Constant(20m))),
-            new Constant(2.5m)))));
+      return new CalculationGraph(
+        new RoundingExpression(
+          MidpointRounding.AwayFromZero,
+          new BinaryExpression(
+            BinaryOperation.Divide,
+            new BinaryExpression(
+              BinaryOperation.Multiply,
+              new ConstantExpression(10m),
+              new ConstantExpression(20m),
+              label: "Sum Year-to-dates"
+            ),
+            new ConstantExpression(2.5m)
+          ),
+          label: "Round to nearest dollar"
+        )
+      );
     }
   }
 }

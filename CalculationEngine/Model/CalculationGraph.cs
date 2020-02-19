@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using static CalculationEngine.Model.CalculationExpression;
+using CalculationEngine.Model.AST;
+using BinaryExpression = CalculationEngine.Model.AST.BinaryExpression;
+using ConstantExpression = CalculationEngine.Model.AST.ConstantExpression;
+using UnaryExpression = CalculationEngine.Model.AST.UnaryExpression;
 
 namespace CalculationEngine.Model
 {
   // TODO: allow parsing graphs from text?
-  // TODO: allow parsing graphs from C# expressions?
   // TODO: add a fluent 'builder' pattern on top of this
 
   public delegate decimal Calculation();
@@ -16,15 +18,21 @@ namespace CalculationEngine.Model
   {
     private readonly CalculationExpression expression;
 
+    public static CalculationGraph FromExpression(Expression<Calculation> expression)
+    {
+      var visitor = new TranslationVisitor();
+
+      visitor.Visit(expression);
+
+      return new CalculationGraph(visitor.Expressions.Dequeue());
+    }
+
     public CalculationGraph(CalculationExpression expression)
     {
       this.expression = expression;
     }
 
-    public decimal Evaluate()
-    {
-      return expression.Accept(new EvaluationVisitor());
-    }
+    public decimal Evaluate() => expression.Evaluate();
 
     public Calculation ToDelegate()
     {
@@ -46,199 +54,106 @@ namespace CalculationEngine.Model
 
     public override string ToString()
     {
-      return expression.Accept(new PrettyPrintVisitor());
+      return expression.ToString();
     }
 
-    private sealed class PrettyPrintVisitor : Visitor<string>
+    private sealed class ExplanationVisitor : CalculationVisitor<IEnumerable<CalculationExplanation.Step>>
     {
-      public override string Visit(Constant expression)
+      public override IEnumerable<CalculationExplanation.Step> Visit(ConstantExpression expression)
       {
-        return expression.Value.ToString("F");
-      }
-
-      public override string Visit(Unary expression)
-      {
-        var inner = expression.Expression.Accept(this);
-
-        return $"{ConvertToString(expression.Operator)} {inner}";
-      }
-
-      public override string Visit(Binary expression)
-      {
-        var left  = expression.Left.Accept(this);
-        var right = expression.Right.Accept(this);
-
-        return $"{left} {ConvertToString(expression.Operator)} {right}";
-      }
-
-      public override string Visit(Grouping expression)
-      {
-        return $"({expression.Expression.Accept(this)})";
-      }
-
-      public override string Visit(Round expression)
-      {
-        return expression.Expression.Accept(this);
-      }
-
-      public override string Visit(TaxTableLookup expression)
-      {
-        return $"Tax Table ({expression.Type})";
-      }
-
-      private string ConvertToString(UnaryOperator @operator)
-      {
-        switch (@operator)
+        if (!string.IsNullOrEmpty(expression.Label))
         {
-          case UnaryOperator.Negate: return "-";
-
-          default:
-            throw new ArgumentOutOfRangeException(nameof(@operator), @operator, null);
+          yield return new CalculationExplanation.Step(expression);
         }
       }
 
-      private string ConvertToString(BinaryOperator @operator)
+      public override IEnumerable<CalculationExplanation.Step> Visit(UnaryExpression expression)
       {
-        switch (@operator)
+        foreach (var step in expression.Operand.Accept(this))
         {
-          case BinaryOperator.Plus: return "+";
-          case BinaryOperator.Minus: return "-";
-          case BinaryOperator.Times: return "*";
-          case BinaryOperator.Divide: return "/";
+          yield return step;
+        }
 
-          default:
-            throw new ArgumentOutOfRangeException(nameof(@operator), @operator, null);
+        if (!string.IsNullOrEmpty(expression.Label))
+        {
+          yield return new CalculationExplanation.Step(expression);
+        }
+      }
+
+      public override IEnumerable<CalculationExplanation.Step> Visit(BinaryExpression expression)
+      {
+        foreach (var step in expression.Left.Accept(this))
+        {
+          yield return step;
+        }
+
+        foreach (var step in expression.Right.Accept(this))
+        {
+          yield return step;
+        }
+
+        if (!string.IsNullOrEmpty(expression.Label))
+        {
+          yield return new CalculationExplanation.Step(expression);
+        }
+      }
+
+      public override IEnumerable<CalculationExplanation.Step> Visit(RoundingExpression expression)
+      {
+        foreach (var step in expression.Value.Accept(this))
+        {
+          yield return step;
+        }
+
+        if (!string.IsNullOrEmpty(expression.Label))
+        {
+          yield return new CalculationExplanation.Step(expression);
         }
       }
     }
 
-    private sealed class EvaluationVisitor : Visitor<decimal>
+    private sealed class CompilationVisitor : CalculationVisitor<Expression>
     {
-      public override decimal Visit(Constant expression)
-      {
-        return expression.Value;
-      }
-
-      public override decimal Visit(Unary expression)
-      {
-        switch (expression.Operator)
-        {
-          case UnaryOperator.Negate:
-            return -expression.Expression.Accept(this);
-        }
-
-        return 0m;
-      }
-
-      public override decimal Visit(Binary expression)
-      {
-        var left  = expression.Left.Accept(this);
-        var right = expression.Right.Accept(this);
-
-        switch (expression.Operator)
-        {
-          case BinaryOperator.Plus: return left + right;
-          case BinaryOperator.Minus: return left - right;
-          case BinaryOperator.Times: return left * right;
-          case BinaryOperator.Divide: return left / right;
-        }
-
-        return 0m;
-      }
-
-      public override decimal Visit(Grouping expression)
-      {
-        return expression.Expression.Accept(this);
-      }
-
-      public override decimal Visit(Round expression)
-      {
-        var amount = expression.Expression.Accept(this);
-
-        return Math.Round(amount, MidpointRounding.AwayFromZero);
-      }
-
-      public override decimal Visit(TaxTableLookup expression)
-      {
-        throw new NotImplementedException();
-      }
-    }
-
-    private sealed class ExplanationVisitor : Visitor<IEnumerable<CalculationExplanation.Step>>
-    {
-      public override IEnumerable<CalculationExplanation.Step> Visit(Constant expression)
-      {
-        throw new NotImplementedException();
-      }
-
-      public override IEnumerable<CalculationExplanation.Step> Visit(Unary expression)
-      {
-        throw new NotImplementedException();
-      }
-
-      public override IEnumerable<CalculationExplanation.Step> Visit(Binary expression)
-      {
-        throw new NotImplementedException();
-      }
-
-      public override IEnumerable<CalculationExplanation.Step> Visit(Grouping expression)
-      {
-        throw new NotImplementedException();
-      }
-
-      public override IEnumerable<CalculationExplanation.Step> Visit(Round expression)
-      {
-        throw new NotImplementedException();
-      }
-
-      public override IEnumerable<CalculationExplanation.Step> Visit(TaxTableLookup expression)
-      {
-        throw new NotImplementedException();
-      }
-    }
-
-    private sealed class CompilationVisitor : Visitor<Expression>
-    {
-      public override Expression Visit(Constant expression)
+      public override Expression Visit(ConstantExpression expression)
       {
         return Expression.Constant(expression.Value, typeof(decimal));
       }
 
-      public override Expression Visit(Unary expression)
+      public override Expression Visit(UnaryExpression expression)
       {
-        switch (expression.Operator)
+        switch (expression.Operation)
         {
-          case UnaryOperator.Negate:
-            return Expression.Not(expression.Expression.Accept(this));
+          case UnaryOperation.Not:
+            return Expression.Not(expression.Operand.Accept(this));
 
           default:
             throw new ArgumentOutOfRangeException();
         }
       }
 
-      public override Expression Visit(Binary expression)
+      public override Expression Visit(BinaryExpression expression)
       {
-        switch (expression.Operator)
+        switch (expression.Operation)
         {
-          case BinaryOperator.Plus:
+          case BinaryOperation.Add:
             return Expression.AddChecked(
               expression.Left.Accept(this),
               expression.Right.Accept(this)
             );
 
-          case BinaryOperator.Minus:
+          case BinaryOperation.Subtract:
             return Expression.SubtractChecked(
               expression.Left.Accept(this),
               expression.Right.Accept(this)
             );
 
-          case BinaryOperator.Times:
+          case BinaryOperation.Multiply:
             return Expression.MultiplyChecked(
               expression.Left.Accept(this),
               expression.Right.Accept(this)
             );
 
-          case BinaryOperator.Divide:
+          case BinaryOperation.Divide:
             return Expression.Divide(
               expression.Left.Accept(this),
               expression.Right.Accept(this)
@@ -249,30 +164,109 @@ namespace CalculationEngine.Model
         }
       }
 
-      public override Expression Visit(Grouping expression)
-      {
-        return expression.Expression.Accept(this);
-      }
-
-      public override Expression Visit(Round expression)
+      public override Expression Visit(RoundingExpression expression)
       {
         var method = typeof(Math).GetMethod(nameof(Math.Round), new[] { typeof(decimal), typeof(MidpointRounding) });
 
         if (method == null)
         {
-          throw new Exception($"Unable to locate {nameof(Math)}.{nameof(Round)} method; has the version of the .NET framework changed?");
+          throw new Exception($"Unable to locate {nameof(Math)}.{nameof(RoundingExpression)} method; has the version of the .NET framework changed?");
         }
 
-        var        argument1 = expression.Expression.Accept(this);
-        Expression argument2 = Expression.Constant(MidpointRounding.AwayFromZero);
+        var argument1 = expression.Value.Accept(this);
+        var argument2 = Expression.Constant(MidpointRounding.AwayFromZero);
 
         return Expression.Call(method, argument1, argument2);
       }
+    }
 
-      public override Expression Visit(TaxTableLookup expression)
+    private sealed class TranslationVisitor : ExpressionVisitor
+    {
+      public Queue<CalculationExpression> Expressions { get; } = new Queue<CalculationExpression>();
+
+      protected override Expression VisitConstant(System.Linq.Expressions.ConstantExpression node)
       {
+        base.VisitConstant(node);
+
+        Expressions.Enqueue(new ConstantExpression(Convert.ToDecimal(node.Value)));
+
+        return node;
+      }
+
+      protected override Expression VisitUnary(System.Linq.Expressions.UnaryExpression node)
+      {
+        base.VisitUnary(node);
+
+        var type = ConvertUnaryOperator(node.NodeType);
+
+        Expressions.Enqueue(new UnaryExpression(type, Expressions.Dequeue()));
+
+        return node;
+      }
+
+      protected override Expression VisitBinary(System.Linq.Expressions.BinaryExpression node)
+      {
+        base.VisitBinary(node);
+
+        var type = ConvertBinaryOperator(node.NodeType);
+
+        Expressions.Enqueue(new BinaryExpression(type, Expressions.Dequeue(), Expressions.Dequeue()));
+
+        return node;
+      }
+
+      protected override Expression VisitMember(MemberExpression node)
+      {
+        base.VisitMember(node);
+
+        var owner = ResolveOwner(node.Expression);
+
+        switch (node.Member)
+        {
+          case FieldInfo field:
+            Expressions.Enqueue(new ConstantExpression(Convert.ToDecimal(field.GetValue(owner))));
+            break;
+
+          case PropertyInfo property:
+            Expressions.Enqueue(new ConstantExpression(Convert.ToDecimal(property.GetValue(owner))));
+            break;
+
+          case MethodInfo _:
+            throw new NotSupportedException("Method expressions are not supported!");
+        }
+
+        return node;
+      }
+
+      private static object? ResolveOwner(Expression expression)
+      {
+        if (expression == null)
+        {
+          return null;
+        }
+
         throw new NotImplementedException();
       }
+
+      private static UnaryOperation ConvertUnaryOperator(ExpressionType type) => type switch
+      {
+        ExpressionType.Not => UnaryOperation.Not,
+        
+        _ => throw new ArgumentOutOfRangeException(nameof(type))
+      };
+
+      private static BinaryOperation ConvertBinaryOperator(ExpressionType type) => type switch
+      {
+        ExpressionType.Add => BinaryOperation.Add,
+        ExpressionType.AddChecked => BinaryOperation.Add,
+        ExpressionType.Subtract => BinaryOperation.Subtract,
+        ExpressionType.SubtractChecked => BinaryOperation.Subtract,
+        ExpressionType.Multiply => BinaryOperation.Multiply,
+        ExpressionType.MultiplyChecked => BinaryOperation.Multiply,
+        ExpressionType.Divide => BinaryOperation.Divide,
+
+        _ => throw new ArgumentOutOfRangeException(nameof(type))
+      };
     }
   }
 }

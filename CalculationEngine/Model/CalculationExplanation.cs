@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using CalculationEngine.Model.AST;
 
 namespace CalculationEngine.Model
 {
+  [DebuggerDisplay("CalculationExplanation ({steps.Count} steps)")]
   public sealed class CalculationExplanation : IEnumerable<CalculationExplanation.Step>
   {
     private readonly List<Step> steps;
@@ -17,15 +20,20 @@ namespace CalculationEngine.Model
     IEnumerator<Step> IEnumerable<Step>.GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.            GetEnumerator() => GetEnumerator();
 
+    [DebuggerDisplay("Step {Operation} ({Label})")]
     public sealed class Step
     {
-      public string Label       { get; }
-      public string Description { get; }
+      public CalculationExpression Expression { get; }
+      public string                Label      { get; }
+      public string                Operation  { get; }
+      public decimal               Amount     { get; }
 
-      public Step(string label, string description)
+      public Step(CalculationExpression expression)
       {
-        Label       = label;
-        Description = description;
+        Expression = expression;
+        Label      = expression.Label;
+        Operation  = expression.ToString();
+        Amount     = expression.Evaluate();
       }
     }
   }
