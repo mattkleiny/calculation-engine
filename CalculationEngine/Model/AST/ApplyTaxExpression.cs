@@ -1,4 +1,3 @@
-using System;
 using System.Linq.Expressions;
 using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
@@ -6,7 +5,7 @@ using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.AST
 {
-  public sealed class ApplyTaxExpression : CalculationExpression
+  internal sealed class ApplyTaxExpression : CalculationExpression
   {
     public TaxCategory           Category { get; }
     public CalculationExpression Value    { get; }
@@ -29,7 +28,7 @@ namespace CalculationEngine.Model.AST
 
     public override Expression Compile(CompilationContext context)
     {
-      throw new NotImplementedException();
+      return Expression.MultiplyChecked(Value.Compile(context), Expression.Constant(0.20m));
     }
 
     public override void Explain(ExplanationContext context)

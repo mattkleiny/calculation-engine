@@ -6,7 +6,7 @@ using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.AST
 {
-  public sealed class UnaryExpression : CalculationExpression
+  internal sealed class UnaryExpression : CalculationExpression
   {
     public UnaryOperation        Operation { get; }
     public CalculationExpression Operand   { get; }

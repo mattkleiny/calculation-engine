@@ -1,6 +1,6 @@
 namespace CalculationEngine.Model.AST
 {
-  public enum BinaryOperation
+  internal enum BinaryOperation
   {
     Add,
     Subtract,

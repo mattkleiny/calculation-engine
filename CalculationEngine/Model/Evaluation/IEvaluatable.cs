@@ -1,6 +1,6 @@
 namespace CalculationEngine.Model.Evaluation
 {
-  public interface IEvaluatable
+  internal interface IEvaluatable
   {
     decimal Evaluate(EvaluationContext context);
   }

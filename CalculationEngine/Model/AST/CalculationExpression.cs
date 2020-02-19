@@ -5,7 +5,7 @@ using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.AST
 {
-  public abstract class CalculationExpression : IEvaluatable, ICompilable, IExplainable
+  internal abstract class CalculationExpression : IEvaluatable, ICompilable, IExplainable
   {
     public abstract decimal    Evaluate(EvaluationContext context);
     public abstract Expression Compile(CompilationContext context);

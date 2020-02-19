@@ -25,30 +25,20 @@ namespace CalculationEngine.Tests.Model
     {
       var graph       = BuildSimpleGraph();
       var context     = new EvaluationContext();
-      var explanation = graph.ToExplanation(context);
+      var explanation = graph.Explain(context);
 
       Assert.NotNull(explanation);
-    }
-
-    [Fact]
-    public void it_should_compile_to_a_LINQ_expression()
-    {
-      var graph      = BuildSimpleGraph();
-      var expression = graph.ToLinqExpression();
-
-      Assert.NotNull(expression);
     }
 
     [Fact]
     public void it_should_compile_to_a_delegate()
     {
       var graph       = BuildSimpleGraph();
-      var calculation = graph.ToDelegate();
+      var calculation = graph.Compile();
 
       Assert.NotNull(calculation);
 
-      var context = new EvaluationContext();
-      var output  = calculation(context);
+      var output = calculation();
 
       Assert.True(output > 0m);
     }
@@ -66,16 +56,16 @@ namespace CalculationEngine.Tests.Model
     [Fact]
     public void it_should_parse_a_simple_linq_expression()
     {
-      var graph  = CalculationGraph.FromExpression(_ => (100m + Amount * 100m) / 2m);
+      var graph  = Calculation.Parse(() => (100m + Amount * 100m) / 2m);
       var output = graph.Evaluate(new EvaluationContext());
 
       Assert.NotNull(graph);
       Assert.Equal(150m, output);
     }
 
-    private static CalculationGraph BuildSimpleGraph()
+    private static Calculation BuildSimpleGraph()
     {
-      return new CalculationGraph(
+      return new Calculation(
         new ApplyTaxExpression(
           TaxCategory.PAYG,
           new RoundingExpression(

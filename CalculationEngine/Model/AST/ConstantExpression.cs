@@ -6,7 +6,7 @@ using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.AST
 {
-  public sealed class ConstantExpression : CalculationExpression
+  internal sealed class ConstantExpression : CalculationExpression
   {
     public decimal Value { get; }
     public string  Label { get; }

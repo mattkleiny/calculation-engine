@@ -6,7 +6,7 @@ using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.AST
 {
-  public sealed class BinaryExpression : CalculationExpression
+  internal sealed class BinaryExpression : CalculationExpression
   {
     public BinaryOperation       Operation { get; }
     public CalculationExpression Left      { get; }

@@ -1,6 +1,6 @@
 namespace CalculationEngine.Model.Explanation
 {
-  public interface IExplainable
+  internal interface IExplainable
   {
     public void Explain(ExplanationContext context);
   }

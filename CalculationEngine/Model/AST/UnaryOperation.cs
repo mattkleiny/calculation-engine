@@ -1,6 +1,6 @@
 namespace CalculationEngine.Model.AST
 {
-  public enum UnaryOperation
+  internal enum UnaryOperation
   {
     Not
   }

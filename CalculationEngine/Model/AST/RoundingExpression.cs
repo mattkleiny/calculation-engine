@@ -6,7 +6,7 @@ using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.AST
 {
-  public sealed class RoundingExpression : CalculationExpression
+  internal sealed class RoundingExpression : CalculationExpression
   {
     public MidpointRounding      Method { get; }
     public CalculationExpression Value  { get; }
