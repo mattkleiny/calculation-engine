@@ -22,6 +22,10 @@ namespace CalculationEngine.Model.Nodes
 
     internal override void Explain(ExplanationContext context)
     {
+      foreach (var expression in Expressions)
+      {
+        expression.Explain(context);
+      }
     }
 
     internal override Expression Compile()

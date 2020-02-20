@@ -37,8 +37,12 @@ namespace CalculationEngine.Model.Nodes
 
     internal override Expression Compile()
     {
-      // TODO: evaluate this on the tax table
-      return Expression.MultiplyChecked(Value.Compile(), Expression.Constant(0.20m));
+      // TODO: use a functional environment pattern to pass the EvaluationContext down here in the expression tree.
+
+      var left  = Value.Compile();
+      var right = Expression.Constant(0.20m);
+
+      return Expression.MultiplyChecked(left, right);
     }
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)

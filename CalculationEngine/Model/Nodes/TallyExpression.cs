@@ -15,8 +15,7 @@ namespace CalculationEngine.Model.Nodes
 
     internal override decimal Evaluate(EvaluationContext context)
     {
-      // TODO: sample this from somewhere on the context
-      return 100m;
+      return context.Earnings.SumYearToDates(Category);
     }
 
     internal override void Explain(ExplanationContext context)
@@ -26,7 +25,8 @@ namespace CalculationEngine.Model.Nodes
 
     internal override Expression Compile()
     {
-      // TODO: sample this from somewhere on the context
+      // TODO: use a functional environment pattern to pass the EvaluationContext down here in the expression tree.
+
       return Expression.Constant(100m);
     }
 
