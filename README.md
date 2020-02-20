@@ -25,15 +25,15 @@ public static CompiledCalculation Calculation { get; } = CompiledCalculation.Cre
   var deductions       = YTD(Deductions);
   var leave            = YTD(Leave);
 
-  var totalEarnings = Variable("A", Sum(ordinaryEarnings, allowances, deductions, leave));
+  var a = Sum(ordinaryEarnings, allowances, deductions, leave);
 
-  var b = Variable("B", Round(totalEarnings - allowances));
-  var c = Variable("C", Round(totalEarnings - deductions));
-  var d = Variable("D", Round(totalEarnings - leave));
+  var b = Variable("B", Round(allowances));
+  var c = Variable("C", Round(deductions));
+  var d = Variable("D", Round(leave));
 
-  var e = Variable("E", Truncate(Tax(PAYG, totalEarnings)));
+  var e = Variable("E", Truncate(Tax(PAYG, a)));
 
-  return b + c - d * e / 2m;
+  return a - (b + c + d) - e / 2m;
 });
 ```
 
@@ -70,7 +70,6 @@ of a particularly complex calculation.
 ## Remaining Tasks:
 
 * Add some more node types, explore different types of calculations and permit different result types per tree.
-* Wire up passing of `EvaluationContext` down into the AST's `Compile()` method with an environment pattern in the resultant LINQ tree.
 
 ## Benchmarks
 

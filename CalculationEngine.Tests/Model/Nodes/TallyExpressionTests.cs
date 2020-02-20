@@ -5,6 +5,6 @@ namespace CalculationEngine.Tests.Model.Nodes
 {
   public sealed class TallyExpressionTests : ExpressionTestCase
   {
-    internal override CalculationExpression Build() => new TallyExpression(EarningsCategory.All);
+    internal override CalculationExpression BuildCalculation() => new TallyExpression(EarningsCategory.All);
   }
 }

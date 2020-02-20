@@ -7,7 +7,7 @@ namespace CalculationEngine.Tests.Model.Nodes
     protected override decimal? ExpectedOutput => 10_000m;
     protected override int      ExpectedSteps  => 1;
 
-    internal override CalculationExpression Build() => new LabelExpression(
+    internal override CalculationExpression BuildCalculation() => new LabelExpression(
       label: "A",
       expression: new ConstantExpression(10_000m)
     );

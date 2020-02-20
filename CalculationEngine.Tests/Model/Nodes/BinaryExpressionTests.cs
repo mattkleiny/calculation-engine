@@ -8,7 +8,7 @@ namespace CalculationEngine.Tests.Model.Nodes
   {
     protected override decimal? ExpectedOutput => 12.5m;
 
-    internal override CalculationExpression Build() => new BinaryExpression(
+    internal override CalculationExpression BuildCalculation() => new BinaryExpression(
       operation: BinaryOperation.Add,
       left: new ConstantExpression(10m),
       right: new ConstantExpression(2.5m)

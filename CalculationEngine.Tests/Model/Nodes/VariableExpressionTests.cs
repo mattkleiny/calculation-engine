@@ -6,7 +6,7 @@ namespace CalculationEngine.Tests.Model.Nodes
   {
     protected override int ExpectedSteps => 1;
 
-    internal override CalculationExpression Build() => new VariableExpression(
+    internal override CalculationExpression BuildCalculation() => new VariableExpression(
       symbol: "A",
       operand: new ConstantExpression(10_000m),
       includeLabel: true

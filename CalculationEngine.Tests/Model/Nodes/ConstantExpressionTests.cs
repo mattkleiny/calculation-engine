@@ -6,6 +6,6 @@ namespace CalculationEngine.Tests.Model.Nodes
   {
     protected override decimal? ExpectedOutput => 10_000m;
 
-    internal override CalculationExpression Build() => new ConstantExpression(10_000m);
+    internal override CalculationExpression BuildCalculation() => new ConstantExpression(10_000m);
   }
 }

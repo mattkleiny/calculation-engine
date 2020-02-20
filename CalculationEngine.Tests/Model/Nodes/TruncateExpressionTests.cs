@@ -7,7 +7,7 @@ namespace CalculationEngine.Tests.Model.Nodes
   {
     protected override decimal? ExpectedOutput => 3m;
 
-    internal override CalculationExpression Build() => new TruncateExpression(
+    internal override CalculationExpression BuildCalculation() => new TruncateExpression(
       value: new ConstantExpression((decimal) Math.PI)
     );
   }

@@ -10,12 +10,12 @@ namespace CalculationEngine.Tests.Model.Nodes
     protected virtual int      ExpectedSteps  { get; } = 0;
     protected virtual decimal? ExpectedOutput { get; } = null;
 
-    internal abstract CalculationExpression Build();
+    internal abstract CalculationExpression BuildCalculation();
 
     [Fact]
     public void it_should_evaluate()
     {
-      var expression = new Calculation(Build());
+      var expression = new Calculation(BuildCalculation());
       var context    = new EvaluationContext();
 
       var output = expression.Evaluate(context);
@@ -29,7 +29,7 @@ namespace CalculationEngine.Tests.Model.Nodes
     [Fact]
     public void it_should_explain()
     {
-      var expression = new Calculation(Build());
+      var expression = new Calculation(BuildCalculation());
       var context    = new EvaluationContext();
 
       var explanation = expression.Explain(context);
@@ -40,7 +40,7 @@ namespace CalculationEngine.Tests.Model.Nodes
     [Fact]
     public void it_should_compile()
     {
-      var expression = new Calculation(Build());
+      var expression = new Calculation(BuildCalculation());
 
       var compiled = expression.Compile();
 
@@ -50,7 +50,7 @@ namespace CalculationEngine.Tests.Model.Nodes
     [Fact]
     public void it_should_pretty_print()
     {
-      var expression = Build();
+      var expression = BuildCalculation();
 
       Assert.NotNull(expression.ToString());
     }

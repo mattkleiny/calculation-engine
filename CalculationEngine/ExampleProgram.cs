@@ -17,32 +17,25 @@ namespace CalculationEngine
       var deductions       = YTD(Deductions);
       var leave            = YTD(Leave);
 
-      var a = Variable("A", Sum(ordinaryEarnings, allowances, deductions, leave));
+      var a = Sum(ordinaryEarnings, allowances, deductions, leave);
 
-      var b = Variable("B", Round(a - allowances));
-      var c = Variable("C", Round(a - deductions));
-      var d = Variable("D", Round(a - leave));
+      var b = Variable("B", Round(allowances));
+      var c = Variable("C", Round(deductions));
+      var d = Variable("D", Round(leave));
 
       var e = Variable("E", Truncate(Tax(PAYG, a)));
 
-      return b + c - d * e / 2m;
+      return a - (b + c + d) - e / 2m;
     });
 
     public static void Main()
     {
-      Execute(Calculation);
-    }
-
-    private static void Execute(CompiledCalculation calculation)
-    {
       var context = new EvaluationContext();
 
-      var figure1     = calculation.Interpet(context);
-      var figure2     = calculation.Execute(context);
-      var explanation = calculation.Explain(context);
+      var output      = Calculation.Execute(context);
+      var explanation = Calculation.Explain(context);
 
-      Console.WriteLine($"Interpret: {figure1}");
-      Console.WriteLine($"Execute: {figure2}");
+      Console.WriteLine($"Total: {output}");
 
       Console.WriteLine();
       Console.WriteLine("Explanation:");
