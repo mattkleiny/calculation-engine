@@ -7,12 +7,12 @@ namespace CalculationEngine.Model.Evaluation
   [Flags]
   public enum EarningsCategory
   {
-    None       = 0,
-    Earnings   = 1 << 0,
-    Allowances = 1 << 1,
-    Deductions = 1 << 2,
-    Leave      = 1 << 3,
-    All        = Earnings | Allowances | Deductions | Leave
+    None             = 0,
+    OrdinaryEarnings = 1 << 0,
+    Allowances       = 1 << 1,
+    Deductions       = 1 << 2,
+    Leave            = 1 << 3,
+    All              = OrdinaryEarnings | Allowances | Deductions | Leave
   }
 
   public enum TaxCategory
@@ -39,7 +39,7 @@ namespace CalculationEngine.Model.Evaluation
     /// <remarks>This is just an example, and one could imagine a simple cache here to minimize database access.</remarks>
     public sealed class EarningsSet
     {
-      public decimal SumYearToDates(EarningsCategory category)
+      public decimal SumYearToDate(EarningsCategory category)
       {
         var total = 0m;
 
@@ -47,7 +47,7 @@ namespace CalculationEngine.Model.Evaluation
         {
           total += value switch
           {
-            EarningsCategory.Earnings => 10_000m,
+            EarningsCategory.OrdinaryEarnings => 10_000m,
             EarningsCategory.Allowances => 5000m,
             EarningsCategory.Deductions => 0m,
             EarningsCategory.Leave => 0m,
@@ -79,6 +79,7 @@ namespace CalculationEngine.Model.Evaluation
 
       public sealed class TaxTable
       {
+        /// <summary>Fetches coefficients for the given cumulative yearly income.</summary>
         public (decimal A, decimal B) this[decimal cumulative]
         {
           get => (0.20m, 200m); // chosen by fair and unbiased dice roll

@@ -10,14 +10,14 @@ namespace CalculationEngine
   public static class Example
   {
     /// <summary>Statically declare calculations, and compile them once at application start-up.</summary>
-    public static CompiledCalculation Calculation1 { get; } = CompiledCalculation.Create(() =>
+    public static CompiledCalculation Calculation { get; } = CompiledCalculation.Create(() =>
     {
-      var earnings   = YTD(Earnings);
-      var allowances = YTD(Allowances);
-      var deductions = YTD(Deductions);
-      var leave      = YTD(Leave);
+      var ordinaryEarnings = YTD(OrdinaryEarnings);
+      var allowances       = YTD(Allowances);
+      var deductions       = YTD(Deductions);
+      var leave            = YTD(Leave);
 
-      var totalEarnings = Variable("A", Sum(earnings, allowances, deductions, leave));
+      var totalEarnings = Variable("A", Sum(ordinaryEarnings, allowances, deductions, leave));
 
       var b = Variable("B", Round(totalEarnings - allowances), includeLabel: true);
       var c = Variable("C", Round(totalEarnings - deductions), includeLabel: true);
@@ -25,10 +25,13 @@ namespace CalculationEngine
 
       var e = Variable("E", Truncate(Tax(PAYG, totalEarnings)), includeLabel: true);
 
-      return b + c + d - e;
+      return b + c - d * e / 2m;
     });
 
-    public static void Main() => Execute(Calculation1);
+    public static void Main()
+    {
+      Execute(Calculation);
+    }
 
     private static void Execute(CompiledCalculation calculation)
     {

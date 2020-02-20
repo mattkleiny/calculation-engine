@@ -1,23 +1,31 @@
 # Calculation Engine
 
-A simple graph-based calculation engine with a fluent builder interface that can compile down into a C# delegate.
+A simple graph-based calculation engine with a fluent syntax that can compiled down into a C# delegate.
 
-This is an attempt to swap from an imperative calculation engine to a declarative one, with support for evaluation, compilation and explanation at runtime.
+This is an attempt to help move from an imperative calculation engine to a more flexible and declarative one,
+with support for evaluation, compilation and explanation at runtime.
 
 ## How it works:
 
-This engine permits you to declaratively construct calculations prior to evaluation, with labels and variables as appropriate,
-an example might be:
+*N.B: All the calculations below are bogus, and are simply meant to illustrate the syntax/structure of the DSL*.
+
+This engine permits you to declaratively construct `Calculation`s prior to evaluation, with `Label`s, `Variables` and
+various different mathematical operations, as appropriate.
+
+All the calculations are expected to produce a `decimal` out the other end of the pipeline, and execution of the calculations
+are deferred until explicitly executed.
+
+For example:
 
 ``` c#
 public static CompiledCalculation Calculation { get; } = CompiledCalculation.Create(() =>
 {
-  var earnings   = YTD(Earnings);
-  var allowances = YTD(Allowances);
-  var deductions = YTD(Deductions);
-  var leave      = YTD(Leave);
+  var ordinaryEarnings = YTD(OrdinaryEarnings);
+  var allowances       = YTD(Allowances);
+  var deductions       = YTD(Deductions);
+  var leave            = YTD(Leave);
 
-  var totalEarnings = Variable("A", Sum(earnings, allowances, deductions, leave));
+  var totalEarnings = Variable("A", Sum(ordinaryEarnings, allowances, deductions, leave));
 
   var b = Variable("B", Round(totalEarnings - allowances));
   var c = Variable("C", Round(totalEarnings - deductions));
@@ -25,17 +33,22 @@ public static CompiledCalculation Calculation { get; } = CompiledCalculation.Cre
 
   var e = Variable("E", Truncate(Tax(PAYG, totalEarnings)));
 
-  return b + c + d - e;
+  return b + c - d * e / 2m;
 });
 ```
 
 Once a calculation has been defined, it can be executed at any time like this:
 
 ``` c#
-Calculation.Execute(new EvaluationContext())
+Calculation.Execute(new EvaluationContext())   // using the compiled delegate
+Calculation.Interpret(new EvaluationContext()) // using the in-memory AST
 ```
 
-Where the `EvaluationContext` allows access to the database, metadata, tax tables, etc.
+Where the `EvaluationContext` allows access to the database, metadata, tax tables, any other external data that is not 
+explicitly baked into the calculation.
+
+The `CompiledCalculation`, in this case, is a container for a compiled C# delegate that is ready to run directly on the 
+CLR. It's also possible to interpret the resultant AST tree with the `.Interpret(EvaluationContext)` method.
 
 Similarly, the calculation can be explained in a structured way like this:
 
@@ -48,9 +61,16 @@ foreach (var step in explanation)
 }
 ```
 
-## Things to clean-up:
+This yields a series of `CalculationStep`s which describes important parts of the calculation, and the sum figures available
+at various points of the evaluation, and can be marked up with `Label`s, `Variable`s and other similar expressions.
 
-* Add some more node types, explore different types of calculations and permit different result types per tree
+Such an `explanation` could be used in a UI to render calculation details to users, or to help understand the underlying logic
+of a particularly complex calculation.
+
+## Remaining Tasks:
+
+* Add some more node types, explore different types of calculations and permit different result types per tree.
+* Wire up passing of `EvaluationContext` down into the AST's `Compile()` method with an environment pattern in the resultant LINQ tree.
 
 ## Benchmarks
 

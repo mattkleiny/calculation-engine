@@ -11,7 +11,7 @@ namespace CalculationEngine.Tests.Model
   {
     public static readonly CompiledCalculation Calculation = CompiledCalculation.Create(() =>
     {
-      var earnings = YTD(Earnings);
+      var earnings = YTD(OrdinaryEarnings);
       var tax      = Tax(PAYG, earnings);
 
       return Round(Truncate(YTD(All) - tax));

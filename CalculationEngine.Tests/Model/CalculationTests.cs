@@ -53,7 +53,7 @@ namespace CalculationEngine.Tests.Model
 
     private static Calculation GetCalculation()
     {
-      var earnings = Variable("A", Sum(YTD(Earnings), YTD(Allowances), YTD(Deductions), YTD(Leave)));
+      var earnings = Variable("A", Sum(YTD(OrdinaryEarnings), YTD(Allowances), YTD(Deductions), YTD(Leave)));
       var tax      = Variable("B", Tax(PAYG, earnings));
 
       return Label("Σ", Round(earnings - tax));

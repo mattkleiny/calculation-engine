@@ -16,13 +16,13 @@ namespace CalculationEngine.Benchmarks
     [Benchmark]
     public void ExecuteCalculation()
     {
-      Example.Calculation1.Execute(new EvaluationContext());
+      Example.Calculation.Execute(new EvaluationContext());
     }
 
     [Benchmark]
     public void InterpretCalculation()
     {
-      Example.Calculation1.Interpet(new EvaluationContext());
+      Example.Calculation.Interpet(new EvaluationContext());
     }
   }
 }

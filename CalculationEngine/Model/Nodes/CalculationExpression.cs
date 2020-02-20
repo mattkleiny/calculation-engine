@@ -10,9 +10,8 @@ namespace CalculationEngine.Model.Nodes
   /// We use an AST instead of a simple data structure as this opens up possibilities in the future
   /// to transpile from different languages (C# via LINQ or Roslyn, or a new language entirely). 
   /// <para/>
-  /// Each expression is individually responsible for self-evaluation, compilation, explanation.
-  /// However, there is a simple <see cref="ICalculationVisitor{T}"/> pattern if you need to walk
-  /// the entire tree. 
+  /// Each expression is individually responsible for self-evaluation, compilation and explanation.
+  /// However, there is a <see cref="ICalculationVisitor{T}"/> pattern if you need to recurse the entire tree. 
   /// </summary>
   internal abstract class CalculationExpression
   {

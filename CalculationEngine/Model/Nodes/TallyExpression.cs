@@ -16,7 +16,7 @@ namespace CalculationEngine.Model.Nodes
 
     internal override decimal Evaluate(EvaluationContext context)
     {
-      return context.Earnings.SumYearToDates(Categories);
+      return context.Earnings.SumYearToDate(Categories);
     }
 
     internal override void Explain(ExplanationContext context)

@@ -10,9 +10,9 @@ namespace CalculationEngine.Model.Nodes
   {
     public CalculationExpression[] Expressions { get; }
 
-    public SigmaExpression(params CalculationExpression[] expressions)
+    public SigmaExpression(IEnumerable<CalculationExpression> expressions)
     {
-      Expressions = expressions;
+      Expressions = expressions.ToArray();
     }
 
     internal override decimal Evaluate(EvaluationContext context)

@@ -24,7 +24,7 @@ namespace CalculationEngine.Model
   {
     /// <summary>Sums the given calculation elements, in sequence.</summary>
     public static Calculation Sum(params Calculation[] calculations)
-      => new SigmaExpression(calculations.Select(_ => _.expression).ToArray());
+      => new SigmaExpression(calculations.Select(_ => _.expression));
 
     /// <summary>Computes the given tax type on the result of the given calculation.</summary>
     public static Calculation Tax(TaxCategory category, Calculation calculation)
@@ -89,12 +89,29 @@ namespace CalculationEngine.Model
     /// Invocations of the delegate will no longer rely on the in-memory AST tree model.
     /// For expensive calculations, this <i>can</i> result in a net increase in performance.
     /// </summary>
-    public Func<EvaluationContext, decimal> Compile()
+    public Func<EvaluationContext, decimal> Compile(bool optimize = true)
     {
-      var body       = expression.Compile();
+      var body = expression.Compile();
+
+      if (optimize)
+      {
+        body = Optimize(body);
+      }
+
       var invocation = Expression.Lambda(body).Compile();
 
       return _ => (decimal) invocation.DynamicInvoke();
+    }
+
+    /// <summary>Optimizes the given expression term, reducing it as much as possible.</summary>
+    private static Expression Optimize(Expression body)
+    {
+      while (body.CanReduce)
+      {
+        body = body.Reduce();
+      }
+
+      return body;
     }
 
     internal T Accept<T>(ICalculationVisitor<T> visitor)

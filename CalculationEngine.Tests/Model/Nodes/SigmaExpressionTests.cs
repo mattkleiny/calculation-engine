@@ -6,10 +6,11 @@ namespace CalculationEngine.Tests.Model.Nodes
   {
     protected override decimal? ExpectedOutput => 35_000m;
 
-    internal override CalculationExpression Build() => new SigmaExpression(
+    internal override CalculationExpression Build() => new SigmaExpression(new[]
+    {
       new ConstantExpression(10_000m),
       new ConstantExpression(20_000m),
       new ConstantExpression(5_000m)
-    );
+    });
   }
 }
