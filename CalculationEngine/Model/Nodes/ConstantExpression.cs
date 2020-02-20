@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Linq.Expressions;
-using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
@@ -22,20 +21,20 @@ namespace CalculationEngine.Model.Nodes
       return Value;
     }
 
-    internal override Expression Compile(CompilationContext context)
-    {
-      return Expression.Constant(Value);
-    }
-
     internal override void Explain(ExplanationContext context)
     {
       if (!string.IsNullOrEmpty(Label))
       {
-        context.Steps.Add(new CalculationStep(Label, ToString(), Evaluate(context.Evaluation)));
+        context.AddStep(Label, this);
       }
     }
 
-    internal override T Accept<T>(IVisitor<T> visitor)
+    internal override Expression Compile()
+    {
+      return Expression.Constant(Value);
+    }
+
+    internal override T Accept<T>(ICalculationVisitor<T> visitor)
     {
       return visitor.Visit(this);
     }

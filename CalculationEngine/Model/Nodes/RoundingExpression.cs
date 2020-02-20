@@ -1,6 +1,5 @@
 using System;
 using System.Linq.Expressions;
-using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
@@ -26,7 +25,17 @@ namespace CalculationEngine.Model.Nodes
       return Math.Round(value, Method);
     }
 
-    internal override Expression Compile(CompilationContext context)
+    internal override void Explain(ExplanationContext context)
+    {
+      Value.Explain(context);
+
+      if (!string.IsNullOrEmpty(Label))
+      {
+        context.AddStep(Label, this);
+      }
+    }
+
+    internal override Expression Compile()
     {
       var method = typeof(Math).GetMethod(nameof(Math.Round), new[] { typeof(decimal), typeof(MidpointRounding) });
 
@@ -35,23 +44,13 @@ namespace CalculationEngine.Model.Nodes
         throw new Exception($"Unable to locate {nameof(Math)}.{nameof(RoundingExpression)} method; has the version of the .NET framework changed?");
       }
 
-      var argument1 = Value.Compile(context);
+      var argument1 = Value.Compile();
       var argument2 = Expression.Constant(Method);
 
       return Expression.Call(method, argument1, argument2);
     }
 
-    internal override void Explain(ExplanationContext context)
-    {
-      Value.Explain(context);
-
-      if (!string.IsNullOrEmpty(Label))
-      {
-        context.Steps.Add(new CalculationStep(Label, ToString(), Evaluate(context.Evaluation)));
-      }
-    }
-
-    internal override T Accept<T>(IVisitor<T> visitor)
+    internal override T Accept<T>(ICalculationVisitor<T> visitor)
     {
       return visitor.Visit(this);
     }

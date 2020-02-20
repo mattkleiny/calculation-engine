@@ -1,6 +1,5 @@
 using System;
 using System.Linq.Expressions;
-using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
@@ -30,15 +29,6 @@ namespace CalculationEngine.Model.Nodes
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
-    internal override Expression Compile(CompilationContext context) => Operation switch
-    {
-      BinaryOperation.Add => Expression.AddChecked(Left.Compile(context), Right.Compile(context)),
-      BinaryOperation.Subtract => Expression.SubtractChecked(Left.Compile(context), Right.Compile(context)),
-      BinaryOperation.Multiply => Expression.MultiplyChecked(Left.Compile(context), Right.Compile(context)),
-      BinaryOperation.Divide => Expression.Divide(Left.Compile(context), Right.Compile(context)),
-      _ => throw new ArgumentOutOfRangeException(nameof(Operation))
-    };
-
     internal override void Explain(ExplanationContext context)
     {
       Left.Explain(context);
@@ -46,11 +36,20 @@ namespace CalculationEngine.Model.Nodes
 
       if (!string.IsNullOrEmpty(Label))
       {
-        context.Steps.Add(new CalculationStep(Label, ToString(), Evaluate(context.Evaluation)));
+        context.AddStep(Label, this);
       }
     }
 
-    internal override T Accept<T>(IVisitor<T> visitor)
+    internal override Expression Compile() => Operation switch
+    {
+      BinaryOperation.Add => Expression.AddChecked(Left.Compile(), Right.Compile()),
+      BinaryOperation.Subtract => Expression.SubtractChecked(Left.Compile(), Right.Compile()),
+      BinaryOperation.Multiply => Expression.MultiplyChecked(Left.Compile(), Right.Compile()),
+      BinaryOperation.Divide => Expression.Divide(Left.Compile(), Right.Compile()),
+      _ => throw new ArgumentOutOfRangeException(nameof(Operation))
+    };
+
+    internal override T Accept<T>(ICalculationVisitor<T> visitor)
     {
       return visitor.Visit(this);
     }

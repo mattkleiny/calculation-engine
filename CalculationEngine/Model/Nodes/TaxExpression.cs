@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
@@ -26,23 +25,23 @@ namespace CalculationEngine.Model.Nodes
       return amount * table[amount];
     }
 
-    internal override Expression Compile(CompilationContext context)
-    {
-      // TODO: evaluate this on the tax table
-      return Expression.MultiplyChecked(Value.Compile(context), Expression.Constant(0.20m));
-    }
-
     internal override void Explain(ExplanationContext context)
     {
       Value.Explain(context);
 
       if (!string.IsNullOrEmpty(Label))
       {
-        context.Steps.Add(new CalculationStep(Label, ToString(), Evaluate(context.Evaluation)));
+        context.AddStep(Label, this);
       }
     }
 
-    internal override T Accept<T>(IVisitor<T> visitor)
+    internal override Expression Compile()
+    {
+      // TODO: evaluate this on the tax table
+      return Expression.MultiplyChecked(Value.Compile(), Expression.Constant(0.20m));
+    }
+
+    internal override T Accept<T>(ICalculationVisitor<T> visitor)
     {
       return visitor.Visit(this);
     }

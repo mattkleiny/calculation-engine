@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
@@ -21,13 +20,18 @@ namespace CalculationEngine.Model.Nodes
       return Expressions.Sum(expression => expression.Evaluate(context));
     }
 
-    internal override Expression Compile(CompilationContext context)
+    internal override void Explain(ExplanationContext context)
     {
+    }
+
+    internal override Expression Compile()
+    {
+      // build a sequence of binary expressions that add the given elements sequentially
       var queue = new Queue<Expression>();
 
       foreach (var expression in Expressions)
       {
-        queue.Enqueue(expression.Compile(context));
+        queue.Enqueue(expression.Compile());
       }
 
       var latest = queue.Dequeue();
@@ -40,12 +44,7 @@ namespace CalculationEngine.Model.Nodes
       return latest;
     }
 
-    internal override void Explain(ExplanationContext context)
-    {
-      context.Steps.Add(new CalculationStep("Σ", ToString(), Evaluate(context.Evaluation)));
-    }
-
-    internal override T Accept<T>(IVisitor<T> visitor)
+    internal override T Accept<T>(ICalculationVisitor<T> visitor)
     {
       return visitor.Visit(this);
     }

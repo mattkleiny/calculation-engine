@@ -1,6 +1,5 @@
 using System;
 using System.Linq.Expressions;
-using CalculationEngine.Model.Compilation;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
@@ -21,13 +20,7 @@ namespace CalculationEngine.Model.Nodes
 
     internal override decimal Evaluate(EvaluationContext context) => Operation switch
     {
-      UnaryOperation.Not => -Operand.Evaluate(context),
-      _ => throw new ArgumentOutOfRangeException(nameof(Operation))
-    };
-
-    internal override Expression Compile(CompilationContext context) => Operation switch
-    {
-      UnaryOperation.Not => Expression.Not(Operand.Compile(context)),
+      UnaryOperation.Negate => -Operand.Evaluate(context),
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
@@ -35,23 +28,29 @@ namespace CalculationEngine.Model.Nodes
     {
       if (!string.IsNullOrEmpty(Label))
       {
-        context.Steps.Add(new CalculationStep(Label, ToString(), Evaluate(context.Evaluation)));
+        context.AddStep(Label, this);
       }
     }
+
+    internal override Expression Compile() => Operation switch
+    {
+      UnaryOperation.Negate => Expression.Not(Operand.Compile()),
+      _ => throw new ArgumentOutOfRangeException(nameof(Operation))
+    };
 
     public override string ToString()
     {
       return $"({ConvertToString(Operation)} {Operand})";
     }
 
-    internal override T Accept<T>(IVisitor<T> visitor)
+    internal override T Accept<T>(ICalculationVisitor<T> visitor)
     {
       return visitor.Visit(this);
     }
 
     private static string ConvertToString(UnaryOperation operation) => operation switch
     {
-      UnaryOperation.Not => "-",
+      UnaryOperation.Negate => "-",
       _ => throw new ArgumentOutOfRangeException(nameof(operation))
     };
   }
