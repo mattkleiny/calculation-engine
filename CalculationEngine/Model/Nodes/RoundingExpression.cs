@@ -7,11 +7,11 @@ namespace CalculationEngine.Model.Nodes
 {
   internal sealed class RoundingExpression : CalculationExpression
   {
-    public MidpointRounding      Method { get; }
     public CalculationExpression Value  { get; }
+    public MidpointRounding      Method { get; }
     public string                Label  { get; }
 
-    public RoundingExpression(MidpointRounding method, CalculationExpression value, string label = null)
+    public RoundingExpression(CalculationExpression value, MidpointRounding method, string label = null)
     {
       Method = method;
       Value  = value;
@@ -38,10 +38,9 @@ namespace CalculationEngine.Model.Nodes
     internal override Expression Compile()
     {
       var method = typeof(Math).GetMethod(nameof(Math.Round), new[] { typeof(decimal), typeof(MidpointRounding) });
-
       if (method == null)
       {
-        throw new Exception($"Unable to locate {nameof(Math)}.{nameof(RoundingExpression)} method; has the version of the .NET framework changed?");
+        throw new Exception($"Unable to locate {nameof(Math)}.{nameof(Math.Round)} method; has the version of the .NET framework changed?");
       }
 
       var argument1 = Value.Compile();

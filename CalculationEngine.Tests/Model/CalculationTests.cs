@@ -56,7 +56,7 @@ namespace CalculationEngine.Tests.Model
     [Fact]
     public void it_should_build_a_simple_calculation_fluently()
     {
-      var calculation = Σ(YTD(Earnings), YTD(Allowances), YTD(Deductions), YTD(Leave));
+      var calculation = Round(YTD(Earnings) + YTD(Allowances) + YTD(Deductions) + YTD(Leave));
       var output      = calculation.Evaluate(new EvaluationContext());
 
       Assert.True(calculation.ToString().Contains("Earnings"));
@@ -68,16 +68,13 @@ namespace CalculationEngine.Tests.Model
       return new SigmaExpression(
         new ConstantExpression(10_000m),
         new TaxExpression(category: PAYG,
-          value: new RoundingExpression(
-            method: MidpointRounding.AwayFromZero,
-            value: new SigmaExpression(
+          value: new RoundingExpression(value: new SigmaExpression(
               new TallyExpression(Earnings),
               new TallyExpression(Allowances),
               new TallyExpression(Deductions),
               new TallyExpression(Leave)
             ),
-            label: "Round to nearest dollar"
-          ),
+            method: MidpointRounding.AwayFromZero, label: "Round to nearest dollar"),
           label: "Apply PAYG amounts"
         )
       );

@@ -22,13 +22,24 @@ namespace CalculationEngine.Model
   public readonly struct Calculation
   {
     /// <summary>Sums the given calculation elements, in sequence.</summary>
-    public static Calculation Σ(params Calculation[] calculations) => new SigmaExpression(calculations.Select(_ => _.expression).ToArray());
+    public static Calculation Sum(params Calculation[] calculations)
+      => new SigmaExpression(calculations.Select(_ => _.expression).ToArray());
 
     /// <summary>Computes the given tax type on the result of the given calculation.</summary>
-    public static Calculation Tax(TaxCategory category, Calculation calculation) => new TaxExpression(category, calculation.expression);
+    public static Calculation Tax(TaxCategory category, Calculation calculation)
+      => new TaxExpression(category, calculation.expression);
 
     /// <summary>Computes the year-to-date values for the given earnings category.</summary>
-    public static Calculation YTD(EarningsCategory category) => new TallyExpression(category);
+    public static Calculation YTD(EarningsCategory categories)
+      => new TallyExpression(categories);
+
+    /// <summary>Rounds the given value with the given rounding method.</summary>
+    public static Calculation Round(Calculation amount, MidpointRounding rounding = MidpointRounding.AwayFromZero)
+      => new RoundingExpression(amount.expression, rounding);
+
+    /// <summary>Truncates the given value.</summary>
+    public static Calculation Truncate(Calculation amount)
+      => new TruncateExpression(amount.expression);
 
     private readonly CalculationExpression expression;
 

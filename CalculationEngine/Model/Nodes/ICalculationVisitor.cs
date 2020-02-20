@@ -7,6 +7,7 @@ namespace CalculationEngine.Model.Nodes
     T Visit(RoundingExpression expression);
     T Visit(SigmaExpression expression);
     T Visit(TallyExpression expression);
+    T Visit(TruncateExpression expression);
     T Visit(TaxExpression expression);
     T Visit(UnaryExpression expression);
   }
@@ -46,6 +47,13 @@ namespace CalculationEngine.Model.Nodes
 
     public virtual T Visit(TallyExpression expression)
     {
+      return default;
+    }
+
+    public virtual T Visit(TruncateExpression expression)
+    {
+      expression.Value.Accept(this);
+
       return default;
     }
 

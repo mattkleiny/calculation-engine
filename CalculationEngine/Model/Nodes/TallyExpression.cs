@@ -1,26 +1,27 @@
 using System.Linq.Expressions;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
+using CalculationEngine.Model.Utilities;
 
 namespace CalculationEngine.Model.Nodes
 {
   internal sealed class TallyExpression : CalculationExpression
   {
-    public EarningsCategory Category { get; }
+    public EarningsCategory Categories { get; }
 
-    public TallyExpression(EarningsCategory category)
+    public TallyExpression(EarningsCategory categories)
     {
-      Category = category;
+      Categories = categories;
     }
 
     internal override decimal Evaluate(EvaluationContext context)
     {
-      return context.Earnings.SumYearToDates(Category);
+      return context.Earnings.SumYearToDates(Categories);
     }
 
     internal override void Explain(ExplanationContext context)
     {
-      context.AddStep($"Tally {Category} YTD", this);
+      context.AddStep($"Tally {Categories} YTD", this);
     }
 
     internal override Expression Compile()
@@ -37,7 +38,7 @@ namespace CalculationEngine.Model.Nodes
 
     public override string ToString()
     {
-      return $"(YTD {Category})";
+      return $"(YTD {Categories.ToPermutationString()})";
     }
   }
 }

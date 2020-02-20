@@ -19,10 +19,12 @@ namespace CalculationEngine.Model.Nodes
 
     internal override decimal Evaluate(EvaluationContext context)
     {
-      var table  = context.TaxTables[Category];
       var amount = Value.Evaluate(context);
 
-      return amount * table[amount];
+      var table = context.TaxTables[Category];
+      var (a, b) = table[amount];
+
+      return a * amount - b;
     }
 
     internal override void Explain(ExplanationContext context)
