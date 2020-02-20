@@ -1,8 +1,9 @@
 using System;
 
-namespace CalculationEngine.Model.Evaluation
+namespace CalculationEngine.Model.Nodes
 {
-  public readonly struct Symbol : IEquatable<Symbol>
+  /// <summary>A symbol name for use variable binding.</summary>
+  internal readonly struct Symbol : IEquatable<Symbol>
   {
     private readonly string name;
 

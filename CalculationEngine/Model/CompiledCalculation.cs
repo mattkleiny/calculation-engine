@@ -4,7 +4,7 @@ using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model
 {
-  /// <summary>Permits static construction of <see cref="Calculation"/></summary>
+  /// <summary>Permits static construction and compilation of <see cref="Calculation"/>s.</summary>
   public sealed class CompiledCalculation
   {
     public static CompiledCalculation Create(Func<Calculation> factory) => new CompiledCalculation(factory());
