@@ -1,6 +1,7 @@
 using System;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
+using CalculationEngine.Model.Nodes;
 
 namespace CalculationEngine.Model
 {
@@ -19,10 +20,11 @@ namespace CalculationEngine.Model
       compilation = calculation.Compile();
     }
 
-    public decimal Execute(EvaluationContext context)  => compilation(context);
-    public decimal Interpet(EvaluationContext context) => calculation.Evaluate(context);
+    public decimal                Execute(EvaluationContext context)  => compilation(context);
+    public decimal                Interpet(EvaluationContext context) => calculation.Evaluate(context);
+    public CalculationExplanation Explain(EvaluationContext context)  => calculation.Explain(context);
 
-    public CalculationExplanation Explain(EvaluationContext context) => calculation.Explain(context);
+    internal T Accept<T>(ICalculationVisitor<T> visitor) => calculation.Accept(visitor);
 
     public override string ToString() => calculation.ToString();
   }

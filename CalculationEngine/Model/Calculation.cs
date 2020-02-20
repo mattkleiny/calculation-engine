@@ -98,9 +98,11 @@ namespace CalculationEngine.Model
         body = Optimize(body);
       }
 
-      var invocation = Expression.Lambda(body).Compile();
+      var parameter  = CalculationExpression.GetContextExpression();
+      var lambda     = Expression.Lambda(body, parameter);
+      var invocation = lambda.Compile();
 
-      return _ => (decimal) invocation.DynamicInvoke();
+      return context => (decimal) invocation.DynamicInvoke(context);
     }
 
     /// <summary>Optimizes the given expression term, reducing it as much as possible.</summary>

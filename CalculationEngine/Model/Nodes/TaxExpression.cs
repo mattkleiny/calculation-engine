@@ -1,3 +1,4 @@
+using System;
 using System.Linq.Expressions;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
@@ -32,11 +33,12 @@ namespace CalculationEngine.Model.Nodes
 
     internal override Expression Compile()
     {
-      // TODO: use a functional environment pattern to pass the EvaluationContext down here in the expression tree.
+      var context = GetContextExpression();
 
-      var value = Evaluate(new EvaluationContext());
+      var method1 = typeof(Convert).GetMethod(nameof(Convert.ToDecimal), new[] { typeof(int) });
+      var method2 = typeof(EvaluationContext).GetMethod(nameof(GetHashCode), new Type[0]);
 
-      return Expression.Constant(value);
+      return Expression.Call(method1, Expression.Call(context, method2));
     }
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)
