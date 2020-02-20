@@ -28,7 +28,9 @@ namespace CalculationEngine.Model.Nodes
     {
       // TODO: use a functional environment pattern to pass the EvaluationContext down here in the expression tree.
 
-      return Expression.Constant(100m);
+      var value = Evaluate(new EvaluationContext());
+
+      return Expression.Constant(value);
     }
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)
