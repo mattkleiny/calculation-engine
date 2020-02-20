@@ -6,6 +6,7 @@ using CalculationEngine.Model.Explanation;
 using CalculationEngine.Model.Nodes;
 using BinaryExpression = CalculationEngine.Model.Nodes.BinaryExpression;
 using ConstantExpression = CalculationEngine.Model.Nodes.ConstantExpression;
+using LabelExpression = CalculationEngine.Model.Nodes.LabelExpression;
 using UnaryExpression = CalculationEngine.Model.Nodes.UnaryExpression;
 
 namespace CalculationEngine.Model
@@ -40,6 +41,10 @@ namespace CalculationEngine.Model
     /// <summary>Truncates the given value.</summary>
     public static Calculation Truncate(Calculation amount)
       => new TruncateExpression(amount.expression);
+
+    /// <summary>Labels the given part of the calculation.</summary>
+    public static Calculation Label(string label, Calculation calculation)
+      => new LabelExpression(label, calculation.expression);
 
     private readonly CalculationExpression expression;
 

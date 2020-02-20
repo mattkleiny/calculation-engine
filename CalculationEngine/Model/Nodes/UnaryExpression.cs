@@ -9,13 +9,11 @@ namespace CalculationEngine.Model.Nodes
   {
     public UnaryOperation        Operation { get; }
     public CalculationExpression Operand   { get; }
-    public string                Label     { get; }
 
-    public UnaryExpression(UnaryOperation operation, CalculationExpression operand, string label = null)
+    public UnaryExpression(UnaryOperation operation, CalculationExpression operand)
     {
       Operation = operation;
       Operand   = operand;
-      Label     = label ?? string.Empty;
     }
 
     internal override decimal Evaluate(EvaluationContext context) => Operation switch
@@ -26,10 +24,7 @@ namespace CalculationEngine.Model.Nodes
 
     internal override void Explain(ExplanationContext context)
     {
-      if (!string.IsNullOrEmpty(Label))
-      {
-        context.AddStep(Label, this);
-      }
+      Operand.Explain(context);
     }
 
     internal override Expression Compile() => Operation switch

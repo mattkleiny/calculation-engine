@@ -10,14 +10,12 @@ namespace CalculationEngine.Model.Nodes
     public BinaryOperation       Operation { get; }
     public CalculationExpression Left      { get; }
     public CalculationExpression Right     { get; }
-    public string                Label     { get; }
 
-    public BinaryExpression(BinaryOperation operation, CalculationExpression left, CalculationExpression right, string label = null)
+    public BinaryExpression(BinaryOperation operation, CalculationExpression left, CalculationExpression right)
     {
       Operation = operation;
       Left      = left;
       Right     = right;
-      Label     = label ?? string.Empty;
     }
 
     internal override decimal Evaluate(EvaluationContext context) => Operation switch
@@ -33,11 +31,6 @@ namespace CalculationEngine.Model.Nodes
     {
       Left.Explain(context);
       Right.Explain(context);
-
-      if (!string.IsNullOrEmpty(Label))
-      {
-        context.AddStep(Label, this);
-      }
     }
 
     internal override Expression Compile() => Operation switch

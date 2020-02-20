@@ -8,13 +8,11 @@ namespace CalculationEngine.Model.Nodes
   {
     public TaxCategory           Category { get; }
     public CalculationExpression Value    { get; }
-    public string                Label    { get; }
 
-    public TaxExpression(TaxCategory category, CalculationExpression value, string label = null)
+    public TaxExpression(TaxCategory category, CalculationExpression value)
     {
       Category = category;
       Value    = value;
-      Label    = label ?? string.Empty;
     }
 
     internal override decimal Evaluate(EvaluationContext context)
@@ -30,11 +28,6 @@ namespace CalculationEngine.Model.Nodes
     internal override void Explain(ExplanationContext context)
     {
       Value.Explain(context);
-
-      if (!string.IsNullOrEmpty(Label))
-      {
-        context.AddStep(Label, this);
-      }
     }
 
     internal override Expression Compile()

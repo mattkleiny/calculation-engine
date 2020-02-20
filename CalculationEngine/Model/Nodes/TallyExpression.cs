@@ -21,7 +21,6 @@ namespace CalculationEngine.Model.Nodes
 
     internal override void Explain(ExplanationContext context)
     {
-      context.AddStep($"Tally {Categories} YTD", this);
     }
 
     internal override Expression Compile()

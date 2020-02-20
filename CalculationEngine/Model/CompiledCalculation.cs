@@ -1,5 +1,6 @@
 using System;
 using CalculationEngine.Model.Evaluation;
+using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model
 {
@@ -20,6 +21,8 @@ namespace CalculationEngine.Model
 
     public decimal Execute(EvaluationContext context)  => compilation(context);
     public decimal Interpet(EvaluationContext context) => calculation.Evaluate(context);
+
+    public CalculationExplanation Explain(EvaluationContext context) => calculation.Explain(context);
 
     public override string ToString() => calculation.ToString();
   }

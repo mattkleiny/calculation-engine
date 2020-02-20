@@ -1,31 +1,35 @@
-using System.Globalization;
 using System.Linq.Expressions;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.Nodes
 {
-  internal sealed class ConstantExpression : CalculationExpression
+  internal sealed class LabelExpression : CalculationExpression
   {
-    public decimal Value { get; }
+    public string                Label      { get; }
+    public CalculationExpression Expression { get; }
 
-    public ConstantExpression(decimal value)
+    public LabelExpression(string label, CalculationExpression expression)
     {
-      Value = value;
+      Label      = label;
+      Expression = expression;
     }
 
     internal override decimal Evaluate(EvaluationContext context)
     {
-      return Value;
+      return Expression.Evaluate(context);
     }
 
     internal override void Explain(ExplanationContext context)
     {
+      Expression.Explain(context);
+
+      context.AddStep(Label, this);
     }
 
     internal override Expression Compile()
     {
-      return Expression.Constant(Value);
+      return Expression.Compile();
     }
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)
@@ -35,7 +39,7 @@ namespace CalculationEngine.Model.Nodes
 
     public override string ToString()
     {
-      return Value.ToString("F", CultureInfo.InvariantCulture);
+      return Expression.ToString();
     }
   }
 }

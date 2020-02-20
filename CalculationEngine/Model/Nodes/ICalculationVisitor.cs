@@ -4,6 +4,7 @@ namespace CalculationEngine.Model.Nodes
   {
     T Visit(BinaryExpression expression);
     T Visit(ConstantExpression expression);
+    T Visit(LabelExpression expression);
     T Visit(RoundingExpression expression);
     T Visit(SigmaExpression expression);
     T Visit(TallyExpression expression);
@@ -25,6 +26,13 @@ namespace CalculationEngine.Model.Nodes
 
     public virtual T Visit(ConstantExpression expression)
     {
+      return default;
+    }
+
+    public virtual T Visit(LabelExpression expression)
+    {
+      expression.Expression.Accept(this);
+
       return default;
     }
 

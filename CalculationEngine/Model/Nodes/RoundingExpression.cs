@@ -9,13 +9,11 @@ namespace CalculationEngine.Model.Nodes
   {
     public CalculationExpression Value  { get; }
     public MidpointRounding      Method { get; }
-    public string                Label  { get; }
 
-    public RoundingExpression(CalculationExpression value, MidpointRounding method, string label = null)
+    public RoundingExpression(CalculationExpression value, MidpointRounding method)
     {
       Method = method;
       Value  = value;
-      Label  = label ?? string.Empty;
     }
 
     internal override decimal Evaluate(EvaluationContext context)
@@ -28,11 +26,6 @@ namespace CalculationEngine.Model.Nodes
     internal override void Explain(ExplanationContext context)
     {
       Value.Explain(context);
-
-      if (!string.IsNullOrEmpty(Label))
-      {
-        context.AddStep(Label, this);
-      }
     }
 
     internal override Expression Compile()

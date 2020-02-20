@@ -74,8 +74,7 @@ namespace CalculationEngine.Tests.Model
               new TallyExpression(Deductions),
               new TallyExpression(Leave)
             ),
-            method: MidpointRounding.AwayFromZero, label: "Round to nearest dollar"),
-          label: "Apply PAYG amounts"
+            method: MidpointRounding.AwayFromZero)
         )
       );
     }
