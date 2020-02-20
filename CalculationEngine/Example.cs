@@ -17,12 +17,15 @@ namespace CalculationEngine
       var deductions = YTD(Deductions);
       var leave      = YTD(Leave);
 
-      var allEarnings = Label("Σ YTD", Sum(earnings, allowances, deductions, leave));
+      var totalEarnings = Variable("A", Sum(earnings, allowances, deductions, leave));
 
-      var a = Label("A", Round(earnings - allowances - deductions - leave));
-      var b = Label("B", Truncate(Tax(PAYG, allEarnings)));
+      var b = Variable("B", Round(totalEarnings - allowances), includeLabel: true);
+      var c = Variable("C", Round(totalEarnings - deductions), includeLabel: true);
+      var d = Variable("D", Round(totalEarnings - leave), includeLabel: true);
 
-      return a + b;
+      var e = Variable("E", Truncate(Tax(PAYG, totalEarnings)), includeLabel: true);
+
+      return b + c + d - e;
     });
 
     public static void Main() => Execute(Calculation1);

@@ -11,6 +11,7 @@ namespace CalculationEngine.Model.Nodes
     T Visit(TruncateExpression expression);
     T Visit(TaxExpression expression);
     T Visit(UnaryExpression expression);
+    T Visit(VariableExpression expression);
   }
 
   /// <summary>A <see cref="ICalculationVisitor{T}"/> which automatically walks the tree.</summary>
@@ -76,6 +77,13 @@ namespace CalculationEngine.Model.Nodes
     {
       expression.Operand.Accept(this);
 
+      return default;
+    }
+
+    public virtual T Visit(VariableExpression expression)
+    {
+      expression.Expression.Accept(this);
+      
       return default;
     }
   }

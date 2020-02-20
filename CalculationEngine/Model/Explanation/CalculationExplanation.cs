@@ -54,7 +54,7 @@ namespace CalculationEngine.Model.Explanation
         Amount      = amount;
       }
 
-      public override string ToString() => $"{Label} = {Description}";
+      public override string ToString() => $"{Label}: {Description}";
     }
   }
 }

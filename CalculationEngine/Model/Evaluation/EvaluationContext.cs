@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CalculationEngine.Model.Utilities;
 
 namespace CalculationEngine.Model.Evaluation
@@ -32,6 +33,7 @@ namespace CalculationEngine.Model.Evaluation
   {
     public EarningsSet Earnings  { get; } = new EarningsSet();
     public TaxTableSet TaxTables { get; } = new TaxTableSet();
+    public ResultSet   Results   { get; } = new ResultSet();
 
     /// <summary>An primitive example of how to compose database access for easy consumption by the calculation.</summary>
     /// <remarks>This is just an example, and one could imagine a simple cache here to minimize database access.</remarks>
@@ -81,6 +83,22 @@ namespace CalculationEngine.Model.Evaluation
         {
           get => (0.20m, 200m); // chosen by fair and unbiased dice roll
         }
+      }
+    }
+
+    /// <summary>A cache for intermediate results in a calculation.</summary>
+    public sealed class ResultSet
+    {
+      private readonly Dictionary<string, decimal> results = new Dictionary<string, decimal>();
+
+      public decimal GetOrCompute(string key, Func<decimal> factory)
+      {
+        if (!results.TryGetValue(key, out var result))
+        {
+          results[key] = result = factory();
+        }
+
+        return result;
       }
     }
   }

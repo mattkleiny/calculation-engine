@@ -46,6 +46,10 @@ namespace CalculationEngine.Model
     public static Calculation Label(string label, Calculation calculation)
       => new LabelExpression(label, calculation.expression);
 
+    /// <summary>Memoizes the result of the given calculation, storing it in a variable and optionally labelling it.</summary>
+    public static Calculation Variable(Symbol symbol, Calculation calculation, bool includeLabel = false) 
+      => new VariableExpression(symbol, calculation.expression, includeLabel);
+
     private readonly CalculationExpression expression;
 
     internal Calculation(CalculationExpression expression)

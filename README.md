@@ -1,14 +1,63 @@
 # Calculation Engine
 
-A simple graph-based calculation model with a fluent builder interface that can compile into a C# delegate.
+A simple graph-based calculation engine with a fluent builder interface that can compile down into a C# delegate.
 
-This is an attempt to swap from an imperative calculation engine to a declarative one, with support for evaluation, compilation and explanation.
+This is an attempt to swap from an imperative calculation engine to a declarative one, with support for evaluation, compilation and explanation at runtime.
+
+## How it works:
+
+This engine permits you to declaratively construct calculations prior to evaluation, with labels and variables as appropriate,
+an example might be:
+
+``` c#
+public static CompiledCalculation Calculation { get; } = CompiledCalculation.Create(() =>
+{
+  var earnings   = YTD(Earnings);
+  var allowances = YTD(Allowances);
+  var deductions = YTD(Deductions);
+  var leave      = YTD(Leave);
+
+  var totalEarnings = Variable("A", Sum(earnings, allowances, deductions, leave));
+
+  var b = Variable("B", Round(totalEarnings - allowances));
+  var c = Variable("C", Round(totalEarnings - deductions));
+  var d = Variable("D", Round(totalEarnings - leave));
+
+  var e = Variable("E", Truncate(Tax(PAYG, totalEarnings)));
+
+  return b + c + d - e;
+});
+```
+
+Once a calculation has been defined, it can be executed at any time like this:
+
+``` c#
+Calculation.Execute(new EvaluationContext())
+```
+
+Where the `EvaluationContext` allows access to the database, metadata, tax tables, etc.
+
+Similarly, the calculation can be explained in a structured way like this:
+
+``` c#
+var explanation = Calculation.Explain(new EvaluationContext())
+
+foreach (var step in explanation) 
+{
+  Console.WriteLine(step.Description);
+}
+```
 
 ## Things to clean-up:
 
 * Add some more node types, explore different types of calculations and permit different result types per tree
 
 ## Benchmarks
+
+The calculation can either be interpreted directly from an internal AST representation, or compiled down into a 
+C# delegate and executed directly on the runtime.
+
+Here are some benchmarks comparing the two approaches:
 
 ``` ini
 

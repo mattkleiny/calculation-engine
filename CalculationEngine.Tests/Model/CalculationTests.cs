@@ -1,7 +1,5 @@
-using System;
 using CalculationEngine.Model;
 using CalculationEngine.Model.Evaluation;
-using CalculationEngine.Model.Nodes;
 using Xunit;
 using static CalculationEngine.Model.Calculation;
 using static CalculationEngine.Model.Evaluation.EarningsCategory;
@@ -14,7 +12,7 @@ namespace CalculationEngine.Tests.Model
     [Fact]
     public void it_should_evaluate_a_simple_graph()
     {
-      var calculation = BuildSimpleCalculation();
+      var calculation = GetCalculation();
       var output      = calculation.Evaluate(new EvaluationContext());
 
       Assert.True(output > 0m);
@@ -23,7 +21,7 @@ namespace CalculationEngine.Tests.Model
     [Fact]
     public void it_should_compile_to_an_explanation()
     {
-      var graph       = BuildSimpleCalculation();
+      var graph       = GetCalculation();
       var explanation = graph.Explain(new EvaluationContext());
 
       Assert.NotNull(explanation);
@@ -33,7 +31,7 @@ namespace CalculationEngine.Tests.Model
     [Fact]
     public void it_should_compile_to_a_delegate()
     {
-      var graph       = BuildSimpleCalculation();
+      var graph       = GetCalculation();
       var calculation = graph.Compile();
 
       Assert.NotNull(calculation);
@@ -46,37 +44,19 @@ namespace CalculationEngine.Tests.Model
     [Fact]
     public void it_should_pretty_print_to_a_string()
     {
-      var graph  = BuildSimpleCalculation();
+      var graph  = GetCalculation();
       var output = graph.ToString();
 
       Assert.NotNull(output);
       Assert.True(output.Contains("PAYG"));
     }
 
-    [Fact]
-    public void it_should_build_a_simple_calculation_fluently()
+    private static Calculation GetCalculation()
     {
-      var calculation = Round(YTD(Earnings) + YTD(Allowances) + YTD(Deductions) + YTD(Leave));
-      var output      = calculation.Evaluate(new EvaluationContext());
+      var earnings = Variable("A", Sum(YTD(Earnings), YTD(Allowances), YTD(Deductions), YTD(Leave)));
+      var tax      = Variable("B", Tax(PAYG, earnings));
 
-      Assert.True(calculation.ToString().Contains("Earnings"));
-      Assert.True(output > 0m);
-    }
-
-    private static Calculation BuildSimpleCalculation()
-    {
-      return new SigmaExpression(
-        new ConstantExpression(10_000m),
-        new TaxExpression(category: PAYG,
-          value: new RoundingExpression(value: new SigmaExpression(
-              new TallyExpression(Earnings),
-              new TallyExpression(Allowances),
-              new TallyExpression(Deductions),
-              new TallyExpression(Leave)
-            ),
-            method: MidpointRounding.AwayFromZero)
-        )
-      );
+      return Label("Σ", Round(earnings - tax));
     }
   }
 }
