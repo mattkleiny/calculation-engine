@@ -29,7 +29,7 @@ namespace CalculationEngine.Model.Nodes
 
     internal override Expression Compile() => Operation switch
     {
-      UnaryOperation.Negate => Expression.Not(Operand.Compile()),
+      UnaryOperation.Negate => Expression.NegateChecked(Operand.Compile()),
       _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
