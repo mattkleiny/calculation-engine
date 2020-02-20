@@ -1,12 +1,10 @@
-using System.Linq.Expressions;
-using System.Reflection;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 using CalculationEngine.Model.Utilities;
 
 namespace CalculationEngine.Model.Nodes
 {
-  internal sealed class TallyExpression : CalculationExpression
+  internal sealed class TallyExpression : ClosedExpression0
   {
     public EarningsCategory Categories { get; }
 
@@ -15,23 +13,13 @@ namespace CalculationEngine.Model.Nodes
       Categories = categories;
     }
 
-    internal override decimal Evaluate(EvaluationContext context)
+    protected override decimal Execute(EvaluationContext context)
     {
-      return EvaluateTally(context, Categories);
+      return context.Earnings.SumYearToDate(Categories);
     }
 
     internal override void Explain(ExplanationContext context)
     {
-    }
-
-    internal override Expression Compile()
-    {
-      var method = typeof(TallyExpression).GetMethod(nameof(EvaluateTally), BindingFlags.Static | BindingFlags.NonPublic);
-
-      var context    = ContextParameter;
-      var categories = Expression.Constant(Categories);
-
-      return Expression.Call(null, method, context, categories);
     }
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)
@@ -42,11 +30,6 @@ namespace CalculationEngine.Model.Nodes
     public override string ToString()
     {
       return $"(YTD {Categories.ToPermutationString()})";
-    }
-
-    private static decimal EvaluateTally(EvaluationContext context, EarningsCategory categories)
-    {
-      return context.Earnings.SumYearToDate(categories);
     }
   }
 }
