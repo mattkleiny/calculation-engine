@@ -47,7 +47,7 @@ namespace CalculationEngine.Model
       => new LabelExpression(label, calculation.expression);
 
     /// <summary>Memoizes the result of the given calculation, storing it in a variable and optionally labelling it.</summary>
-    public static Calculation Variable(string name, Calculation calculation, bool includeLabel = false)
+    public static Calculation Variable(string name, Calculation calculation, bool includeLabel = true)
       => new VariableExpression(name, calculation.expression, includeLabel);
 
     private readonly CalculationExpression expression;
@@ -98,7 +98,7 @@ namespace CalculationEngine.Model
         body = Optimize(body);
       }
 
-      var parameter  = CalculationExpression.GetContextExpression();
+      var parameter  = CalculationExpression.ContextParameter;
       var lambda     = Expression.Lambda(body, parameter);
       var invocation = lambda.Compile();
 

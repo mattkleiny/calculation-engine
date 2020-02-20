@@ -8,7 +8,7 @@ namespace CalculationEngine.Tests.Model.Nodes
 
     internal override CalculationExpression Build() => new VariableExpression(
       symbol: "A",
-      expression: new ConstantExpression(10_000m),
+      operand: new ConstantExpression(10_000m),
       includeLabel: true
     );
   }

@@ -82,7 +82,7 @@ namespace CalculationEngine.Model.Nodes
 
     public virtual T Visit(VariableExpression expression)
     {
-      expression.Expression.Accept(this);
+      expression.Operand.Accept(this);
       
       return default;
     }

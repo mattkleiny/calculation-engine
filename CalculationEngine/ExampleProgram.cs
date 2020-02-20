@@ -19,11 +19,11 @@ namespace CalculationEngine
 
       var a = Variable("A", Sum(ordinaryEarnings, allowances, deductions, leave));
 
-      var b = Variable("B", Round(a - allowances), includeLabel: true);
-      var c = Variable("C", Round(a - deductions), includeLabel: true);
-      var d = Variable("D", Round(a - leave), includeLabel: true);
+      var b = Variable("B", Round(a - allowances));
+      var c = Variable("C", Round(a - deductions));
+      var d = Variable("D", Round(a - leave));
 
-      var e = Variable("E", Truncate(Tax(PAYG, a)), includeLabel: true);
+      var e = Variable("E", Truncate(Tax(PAYG, a)));
 
       return b + c - d * e / 2m;
     });

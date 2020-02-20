@@ -1,4 +1,7 @@
+using System;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 
@@ -7,24 +10,24 @@ namespace CalculationEngine.Model.Nodes
   internal sealed class VariableExpression : CalculationExpression
   {
     public Symbol                Symbol       { get; }
-    public CalculationExpression Expression   { get; }
+    public CalculationExpression Operand      { get; }
     public bool                  IncludeLabel { get; }
 
-    public VariableExpression(Symbol symbol, CalculationExpression expression, bool includeLabel)
+    public VariableExpression(Symbol symbol, CalculationExpression operand, bool includeLabel)
     {
       Symbol       = symbol;
-      Expression   = expression;
+      Operand      = operand;
       IncludeLabel = includeLabel;
     }
 
     internal override decimal Evaluate(EvaluationContext context)
     {
-      return context.Results.GetOrCompute(Symbol.ToString(), () => Expression.Evaluate(context));
+      return EvaluateVariable(context, Symbol, () => Operand.Evaluate(context));
     }
 
     internal override void Explain(ExplanationContext context)
     {
-      Expression.Explain(context);
+      Operand.Explain(context);
 
       if (IncludeLabel)
       {
@@ -34,9 +37,13 @@ namespace CalculationEngine.Model.Nodes
 
     internal override Expression Compile()
     {
-      // TODO: use a functional environment pattern to pass the EvaluationContext down here in the expression tree.
+      var method = typeof(VariableExpression).GetMethod(nameof(EvaluateVariable), BindingFlags.Static | BindingFlags.NonPublic);
 
-      return Expression.Compile();
+      var context = ContextParameter;
+      var symbol  = Expression.Constant(Symbol);
+      var factory = Expression.Lambda<Func<decimal>>(Operand.Compile(), Enumerable.Empty<ParameterExpression>());
+
+      return Expression.Call(null, method, new Expression[] { context, symbol, factory });
     }
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)
@@ -46,7 +53,12 @@ namespace CalculationEngine.Model.Nodes
 
     public override string ToString()
     {
-      return $"({Symbol} = {Expression})";
+      return $"({Symbol} = {Operand})";
+    }
+
+    private static decimal EvaluateVariable(EvaluationContext context, Symbol symbol, Func<decimal> factory)
+    {
+      return context.Results.GetOrCompute(symbol.ToString(), factory);
     }
   }
 }

@@ -26,6 +26,6 @@ namespace CalculationEngine.Model.Nodes
     public static implicit operator Calculation(CalculationExpression expression) => new Calculation(expression);
 
     /// <summary>Builds a <see cref="ParameterExpression"/> that accesses the passed <see cref="EvaluationContext"/>.</summary>
-    internal static ParameterExpression GetContextExpression() => Expression.Parameter(typeof(EvaluationContext), "context");
+    internal static ParameterExpression ContextParameter { get; } = Expression.Parameter(typeof(EvaluationContext), "context");
   }
 }

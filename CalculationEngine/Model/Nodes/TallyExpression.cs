@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 using CalculationEngine.Model.Utilities;
@@ -16,7 +17,7 @@ namespace CalculationEngine.Model.Nodes
 
     internal override decimal Evaluate(EvaluationContext context)
     {
-      return context.Earnings.SumYearToDate(Categories);
+      return EvaluateTally(context, Categories);
     }
 
     internal override void Explain(ExplanationContext context)
@@ -25,11 +26,12 @@ namespace CalculationEngine.Model.Nodes
 
     internal override Expression Compile()
     {
-      // TODO: use a functional environment pattern to pass the EvaluationContext down here in the expression tree.
+      var method = typeof(TallyExpression).GetMethod(nameof(EvaluateTally), BindingFlags.Static | BindingFlags.NonPublic);
 
-      var value = Evaluate(new EvaluationContext());
+      var context    = ContextParameter;
+      var categories = Expression.Constant(Categories);
 
-      return Expression.Constant(value);
+      return Expression.Call(null, method, context, categories);
     }
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)
@@ -40,6 +42,11 @@ namespace CalculationEngine.Model.Nodes
     public override string ToString()
     {
       return $"(YTD {Categories.ToPermutationString()})";
+    }
+
+    private static decimal EvaluateTally(EvaluationContext context, EarningsCategory categories)
+    {
+      return context.Earnings.SumYearToDate(categories);
     }
   }
 }
