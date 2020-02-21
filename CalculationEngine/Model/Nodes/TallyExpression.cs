@@ -6,18 +6,20 @@ namespace CalculationEngine.Model.Nodes
 {
   internal sealed class TallyExpression : ClosedExpression0
   {
-    public EarningsCategory Categories { get; }
+    public EarningsCategory    Categories { get; }
+    public AnnualisationMethod Method     { get; }
 
-    public TallyExpression(EarningsCategory categories)
+    public TallyExpression(EarningsCategory categories, AnnualisationMethod method)
     {
       Categories = categories;
+      Method     = method;
     }
 
     protected override decimal Execute(EvaluationContext context)
     {
       var key = $"Earnings:({Categories.ToPermutationString()})";
 
-      return context.Results.GetOrCompute(key, () => context.Earnings.SumYearToDate(Categories));
+      return context.Results.GetOrCompute(key, () => context.Earnings.CalculateEarnings(Categories, Method));
     }
 
     internal override void Explain(ExplanationContext context)
@@ -31,7 +33,7 @@ namespace CalculationEngine.Model.Nodes
 
     public override string ToString()
     {
-      return $"(YTD {Categories.ToPermutationString()})";
+      return $"(YTD {Categories.ToPermutationString()} as {Method})";
     }
   }
 }

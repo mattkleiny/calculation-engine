@@ -23,6 +23,13 @@ namespace CalculationEngine.Model.Evaluation
     STSL,
   }
 
+  public enum AnnualisationMethod
+  {
+    Weekly,
+    Monthly,
+    Yearly,
+  }
+
   /// <summary>
   /// Defines the content for evaluation of <see cref="Calculation"/>s.
   /// <para/>
@@ -39,7 +46,7 @@ namespace CalculationEngine.Model.Evaluation
     /// <remarks>This is just an example, and one could imagine a simple cache here to minimize database access.</remarks>
     public sealed class EarningsSet
     {
-      public decimal SumYearToDate(EarningsCategory category)
+      public AnnualisedAmount CalculateEarnings(EarningsCategory category, AnnualisationMethod method)
       {
         var total = 0m;
 
@@ -55,7 +62,15 @@ namespace CalculationEngine.Model.Evaluation
           };
         }
 
-        return total;
+        var periods = method switch
+        {
+          AnnualisationMethod.Weekly => 52,
+          AnnualisationMethod.Monthly => 12,
+          AnnualisationMethod.Yearly => 1,
+          _ => throw new ArgumentOutOfRangeException(nameof(method))
+        };
+
+        return new AnnualisedAmount(total, periods);
       }
     }
 

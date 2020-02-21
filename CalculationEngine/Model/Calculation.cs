@@ -24,15 +24,15 @@ namespace CalculationEngine.Model
   {
     /// <summary>Sums the given calculation elements, in sequence.</summary>
     public static Calculation Sum(params Calculation[] calculations)
-      => new SigmaExpression(calculations.Select(_ => _.expression));
+      => new SumExpression(calculations.Select(_ => _.expression));
 
     /// <summary>Computes the given tax type on the result of the given calculation.</summary>
     public static Calculation Tax(TaxCategory category, Calculation calculation)
       => new TaxExpression(category, calculation.expression);
 
     /// <summary>Computes the year-to-date values for the given earnings category.</summary>
-    public static Calculation YTD(EarningsCategory categories)
-      => new TallyExpression(categories);
+    public static Calculation YTD(EarningsCategory categories, AnnualisationMethod method = AnnualisationMethod.Weekly)
+      => new TallyExpression(categories, method);
 
     /// <summary>Rounds the given value with the given rounding method.</summary>
     public static Calculation Round(Calculation amount, MidpointRounding rounding = MidpointRounding.AwayFromZero)

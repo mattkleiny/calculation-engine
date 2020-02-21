@@ -7,7 +7,7 @@ namespace CalculationEngine.Model.Evaluation
   {
     public decimal Rate   { get; }
     public decimal Amount { get; }
-    public decimal Total  => Rate * Amount;
+    public decimal Value  => Rate * Amount;
 
     public FixedRate(decimal rate, decimal amount)
     {
@@ -15,7 +15,7 @@ namespace CalculationEngine.Model.Evaluation
       Amount = amount;
     }
 
-    public override string ToString() => $"{Rate} at {Amount} ({Total})";
+    public override string ToString() => $"{Rate} at {Amount} ({Value})";
 
     public          bool Equals(FixedRate other) => Rate == other.Rate && Amount == other.Amount;
     public override bool Equals(object? obj)     => obj is FixedRate other && Equals(other);
@@ -25,6 +25,6 @@ namespace CalculationEngine.Model.Evaluation
     public static bool operator ==(FixedRate left, FixedRate right) => left.Equals(right);
     public static bool operator !=(FixedRate left, FixedRate right) => !left.Equals(right);
 
-    public static implicit operator decimal(FixedRate rate) => rate.Total;
+    public static implicit operator decimal(FixedRate rate) => rate.Value;
   }
 }

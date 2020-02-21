@@ -6,7 +6,7 @@ namespace CalculationEngine.Model.Nodes
     T Visit(ConstantExpression expression);
     T Visit(LabelExpression expression);
     T Visit(RoundingExpression expression);
-    T Visit(SigmaExpression expression);
+    T Visit(SumExpression expression);
     T Visit(TallyExpression expression);
     T Visit(TruncateExpression expression);
     T Visit(TaxExpression expression);
@@ -44,7 +44,7 @@ namespace CalculationEngine.Model.Nodes
       return default;
     }
 
-    public virtual T Visit(SigmaExpression expression)
+    public virtual T Visit(SumExpression expression)
     {
       foreach (var subexpression in expression.Expressions)
       {

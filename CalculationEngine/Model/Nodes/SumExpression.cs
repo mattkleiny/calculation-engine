@@ -6,11 +6,11 @@ using CalculationEngine.Model.Explanation;
 
 namespace CalculationEngine.Model.Nodes
 {
-  internal sealed class SigmaExpression : CalculationExpression
+  internal sealed class SumExpression : CalculationExpression
   {
     public CalculationExpression[] Expressions { get; }
 
-    public SigmaExpression(IEnumerable<CalculationExpression> expressions)
+    public SumExpression(IEnumerable<CalculationExpression> expressions)
     {
       Expressions = expressions.ToArray();
     }

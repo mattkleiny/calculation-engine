@@ -2,7 +2,7 @@ using System;
 
 namespace CalculationEngine.Model.Nodes
 {
-  /// <summary>A symbol name for use variable binding.</summary>
+  /// <summary>A symbol name for use in variable bindings.</summary>
   internal readonly struct Symbol : IEquatable<Symbol>
   {
     private readonly string name;
