@@ -84,12 +84,12 @@ BenchmarkDotNet=v0.12.0, OS=Windows 10.0.18362
 Intel Core i7-7820HQ CPU 2.90GHz (Kaby Lake), 1 CPU, 8 logical and 4 physical cores
 .NET Core SDK=3.1.100
   [Host]     : .NET Core 3.1.0 (CoreCLR 4.700.19.56402, CoreFX 4.700.19.56404), X64 RyuJIT
-  Job-AJITFZ : .NET Core 3.1.0 (CoreCLR 4.700.19.56402, CoreFX 4.700.19.56404), X64 RyuJIT
+  Job-QORYBL : .NET Core 3.1.0 (CoreCLR 4.700.19.56402, CoreFX 4.700.19.56404), X64 RyuJIT
 
 Runtime=.NET Core 3.1  
 
 ```
-|               Method |     Mean |    Error |   StdDev |   Median |
-|--------------------- |---------:|---------:|---------:|---------:|
-|   ExecuteCalculation | 401.0 ns |  8.80 ns | 25.66 ns | 399.3 ns |
-| InterpretCalculation | 747.3 ns | 14.58 ns | 36.03 ns | 735.0 ns |
+|               Method |     Mean |     Error |    StdDev | Ratio | RatioSD | Rank |  Gen 0 | Gen 1 | Gen 2 | Allocated |
+|--------------------- |---------:|----------:|----------:|------:|--------:|-----:|-------:|------:|------:|----------:|
+| InterpretCalculation | 1.361 us | 0.0129 us | 0.0115 us |  1.00 |    0.00 |    I | 0.5207 |     - |     - |   2.13 KB |
+|   ExecuteCalculation | 4.566 us | 0.0528 us | 0.0468 us |  3.36 |    0.04 |   II | 0.5264 |     - |     - |   2.18 KB |
