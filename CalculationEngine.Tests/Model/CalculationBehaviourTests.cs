@@ -9,27 +9,32 @@ using static CalculationEngine.Model.Evaluation.TaxCategory;
 
 namespace CalculationEngine.Tests.Model
 {
-  public sealed class CompiledCalculationTests
+  public sealed class CalculationBehaviourTests
   {
-    public static readonly CompiledCalculation Calculation = CompiledCalculation.Create(() =>
+    [Theory]
+    [MemberData(nameof(GetCalculationsUnderTest))]
+    public void it_should_interpret_all_calculations(CompiledCalculation calculation)
     {
-      var earnings = YTD(OrdinaryEarnings);
-      var tax      = Tax(PAYG, earnings);
-
-      return Round(Truncate(YTD(All) - tax));
-    });
-
-    [Fact]
-    public void it_should_compile_a_valid_calculation()
-    {
-      var output = Calculation.Execute(new EvaluationContext());
-
-      Assert.True(output > 0m);
+      calculation.Interpet(new EvaluationContext());
     }
 
     [Theory]
     [MemberData(nameof(GetCalculationsUnderTest))]
-    public void it_should_evaluate_the_same_interpreted_as_compiled(CompiledCalculation calculation)
+    public void it_should_compile_and_execute_all_calculations(CompiledCalculation calculation)
+    {
+      calculation.Execute(new EvaluationContext());
+    }
+
+    [Theory]
+    [MemberData(nameof(GetCalculationsUnderTest))]
+    public void it_should_explain_all_calculations(CompiledCalculation calculation)
+    {
+      Assert.NotNull(calculation.Explain(new EvaluationContext()));
+    }
+
+    [Theory]
+    [MemberData(nameof(GetCalculationsUnderTest))]
+    public void it_should_evaluate_all_the_same_interpreted_as_compiled(CompiledCalculation calculation)
     {
       var context = new EvaluationContext();
 
@@ -41,19 +46,19 @@ namespace CalculationEngine.Tests.Model
 
     public static IEnumerable<object[]> GetCalculationsUnderTest()
     {
-      yield return TestCalculation(() =>
+      yield return Example(() =>
       {
         return 100m + 200m / 3m;
       });
 
-      yield return TestCalculation(() =>
+      yield return Example(() =>
       {
         var earnings = YTD(All);
 
         return earnings / 2m;
       });
 
-      yield return TestCalculation(() =>
+      yield return Example(() =>
       {
         var a = Variable("A", 4000m);
         var b = Variable("B", 2000m);
@@ -61,7 +66,7 @@ namespace CalculationEngine.Tests.Model
         return a / b;
       });
 
-      yield return TestCalculation(() =>
+      yield return Example(() =>
       {
         var earnings = YTD(All);
         var tax      = Tax(PAYG, earnings);
@@ -69,7 +74,7 @@ namespace CalculationEngine.Tests.Model
         return Round(earnings - Truncate(tax));
       });
 
-      yield return TestCalculation(() =>
+      yield return Example(() =>
       {
         var ordinaryEarnings = YTD(OrdinaryEarnings);
         var allowances       = YTD(Allowances);
@@ -86,8 +91,8 @@ namespace CalculationEngine.Tests.Model
 
         return b + c - d * e / 2m;
       });
+      
+      static object[] Example(Func<Calculation> factory) => new object[] { CompiledCalculation.Create(factory) };
     }
-
-    private static object[] TestCalculation(Func<Calculation> factory) => new object[] { CompiledCalculation.Create(factory) };
   }
 }
