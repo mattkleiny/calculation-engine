@@ -15,7 +15,9 @@ namespace CalculationEngine.Model.Nodes
 
     protected override decimal Execute(EvaluationContext context)
     {
-      return context.Earnings.SumYearToDate(Categories);
+      var key = $"Earnings:({Categories.ToPermutationString()})";
+
+      return context.Results.GetOrCompute(key, () => context.Earnings.SumYearToDate(Categories));
     }
 
     internal override void Explain(ExplanationContext context)
