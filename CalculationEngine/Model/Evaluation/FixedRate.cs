@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace CalculationEngine.Model.Evaluation
 {
@@ -9,7 +10,13 @@ namespace CalculationEngine.Model.Evaluation
     public decimal Amount { get; }
     public decimal Value  => Rate * Amount;
 
-    public FixedRate(decimal rate, decimal amount)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static FixedRate FromFixedRate(decimal total, decimal rate)
+    {
+      return new FixedRate(total / rate, rate);
+    }
+
+    public FixedRate(decimal amount, decimal rate)
     {
       Rate   = rate;
       Amount = amount;

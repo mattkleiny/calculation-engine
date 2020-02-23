@@ -1,13 +1,20 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace CalculationEngine.Model.Evaluation
 {
-  /// <summary>A figure that has been deduced from an annual amount.</summary>
+  /// <summary>Represents and defers the evaluation of an annualised division.</summary>
   public readonly struct AnnualisedAmount : IEquatable<AnnualisedAmount>
   {
     public decimal Total   { get; }
     public decimal Periods { get; }
     public decimal Value   => Total / Periods;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static AnnualisedAmount FromAnnualised(decimal amount, decimal periods)
+    {
+      return new AnnualisedAmount(amount * periods, periods);
+    }
 
     public AnnualisedAmount(decimal total, decimal periods)
     {
@@ -15,7 +22,7 @@ namespace CalculationEngine.Model.Evaluation
       Periods = periods;
     }
 
-    public override string ToString() => $"{Total} over {Periods} ({Value})";
+    public override string ToString() => $"{Total} over {Periods} periods ({Value})";
 
     public          bool Equals(AnnualisedAmount other) => Total == other.Total && Periods == other.Periods;
     public override bool Equals(object? obj)            => obj is AnnualisedAmount other && Equals(other);
