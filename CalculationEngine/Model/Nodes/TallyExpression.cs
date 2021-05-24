@@ -1,21 +1,13 @@
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 using CalculationEngine.Model.Utilities;
+using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
-  internal sealed class TallyExpression : ClosedExpression0
+  internal sealed record TallyExpression(EarningsCategory Categories, AnnualisationMethod Method) : CalculationExpression
   {
-    public EarningsCategory    Categories { get; }
-    public AnnualisationMethod Method     { get; }
-
-    public TallyExpression(EarningsCategory categories, AnnualisationMethod method)
-    {
-      Categories = categories;
-      Method     = method;
-    }
-
-    protected override decimal Execute(EvaluationContext context)
+    internal override decimal Evaluate(EvaluationContext context)
     {
       var key = $"Earnings:({Categories.ToPermutationString()})";
 

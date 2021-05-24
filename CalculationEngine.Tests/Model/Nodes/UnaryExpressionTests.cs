@@ -7,8 +7,8 @@ namespace CalculationEngine.Tests.Model.Nodes
     protected override decimal? ExpectedOutput => -200m;
 
     internal override CalculationExpression BuildCalculation() => new UnaryExpression(
-      operation: UnaryOperation.Negate,
-      operand: new ConstantExpression(200m)
+      Operation: UnaryOperation.Negate,
+      Operand: new ConstantExpression(200m)
     );
   }
 }

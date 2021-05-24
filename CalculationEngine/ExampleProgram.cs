@@ -9,8 +9,7 @@ namespace CalculationEngine
 {
   public static class ExampleProgram
   {
-    /// <summary>Statically declare calculations, and compile them once at application start-up.</summary>
-    public static CompiledCalculation Calculation { get; } = CompiledCalculation.Create(() =>
+    public static Calculation Calculation { get; } = Create(() =>
     {
       var ordinaryEarnings = YTD(OrdinaryEarnings);
       var allowances       = YTD(Allowances);
@@ -32,7 +31,7 @@ namespace CalculationEngine
     {
       var context = new EvaluationContext();
 
-      var output      = Calculation.Execute(context);
+      var output      = Calculation.Evaluate(context);
       var explanation = Calculation.Explain(context);
 
       Console.WriteLine($"Total: {output}");

@@ -9,18 +9,18 @@ namespace CalculationEngine.Tests.Model.Nodes
     protected override decimal? ExpectedOutput => 12.5m;
 
     internal override CalculationExpression BuildCalculation() => new BinaryExpression(
-      operation: BinaryOperation.Add,
-      left: new ConstantExpression(10m),
-      right: new ConstantExpression(2.5m)
+      Operation: BinaryOperation.Add,
+      Left: new ConstantExpression(10m),
+      Right: new ConstantExpression(2.5m)
     );
 
     [Fact]
     public void it_should_add_when_evaluating()
     {
       var expression = new BinaryExpression(
-        operation: BinaryOperation.Add,
-        left: new ConstantExpression(10m),
-        right: new ConstantExpression(2.5m)
+        Operation: BinaryOperation.Add,
+        Left: new ConstantExpression(10m),
+        Right: new ConstantExpression(2.5m)
       );
 
       var output = expression.Evaluate(new EvaluationContext());
@@ -32,9 +32,9 @@ namespace CalculationEngine.Tests.Model.Nodes
     public void it_should_subtract_when_evaluating()
     {
       var expression = new BinaryExpression(
-        operation: BinaryOperation.Subtract,
-        left: new ConstantExpression(10m),
-        right: new ConstantExpression(2.5m)
+        Operation: BinaryOperation.Subtract,
+        Left: new ConstantExpression(10m),
+        Right: new ConstantExpression(2.5m)
       );
 
       var output = expression.Evaluate(new EvaluationContext());
@@ -46,9 +46,9 @@ namespace CalculationEngine.Tests.Model.Nodes
     public void it_should_multiply_when_evaluating()
     {
       var expression = new BinaryExpression(
-        operation: BinaryOperation.Multiply,
-        left: new ConstantExpression(10m),
-        right: new ConstantExpression(2.5m)
+        Operation: BinaryOperation.Multiply,
+        Left: new ConstantExpression(10m),
+        Right: new ConstantExpression(2.5m)
       );
 
       var output = expression.Evaluate(new EvaluationContext());
@@ -60,9 +60,9 @@ namespace CalculationEngine.Tests.Model.Nodes
     public void it_should_divide_when_evaluating()
     {
       var expression = new BinaryExpression(
-        operation: BinaryOperation.Divide,
-        left: new ConstantExpression(10m),
-        right: new ConstantExpression(2.5m)
+        Operation: BinaryOperation.Divide,
+        Left: new ConstantExpression(10m),
+        Right: new ConstantExpression(2.5m)
       );
 
       var output = expression.Evaluate(new EvaluationContext());

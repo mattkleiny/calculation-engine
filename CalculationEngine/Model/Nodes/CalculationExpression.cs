@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
+using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
@@ -13,17 +14,16 @@ namespace CalculationEngine.Model.Nodes
   /// Each expression is individually responsible for self-evaluation, compilation and explanation.
   /// However, there is a <see cref="ICalculationVisitor{T}"/> pattern if you need to recurse the entire tree. 
   /// </summary>
-  internal abstract class CalculationExpression
+  internal abstract record CalculationExpression
   {
-    internal abstract decimal    Evaluate(EvaluationContext context);
-    internal abstract void       Explain(ExplanationContext context);
-    internal abstract Expression Compile();
+    internal abstract decimal Evaluate(EvaluationContext context);
+    internal abstract void    Explain(ExplanationContext context);
 
-    internal abstract T Accept<T>(ICalculationVisitor<T> visitor);
+    internal abstract T? Accept<T>(ICalculationVisitor<T> visitor);
 
     public abstract override string ToString();
 
-    public static implicit operator Calculation(CalculationExpression expression) => new Calculation(expression);
+    public static implicit operator Calculation(CalculationExpression expression) => new(expression);
 
     /// <summary>Builds a <see cref="ParameterExpression"/> that accesses the passed <see cref="EvaluationContext"/>.</summary>
     internal static ParameterExpression ContextParameter { get; } = Expression.Parameter(typeof(EvaluationContext), "context");

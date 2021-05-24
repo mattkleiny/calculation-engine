@@ -1,24 +1,15 @@
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
+using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
-  internal sealed class TaxExpression : ClosedExpression1
+  internal sealed record TaxExpression(TaxCategory Category, CalculationExpression Value) : CalculationExpression
   {
-    public TaxCategory           Category { get; }
-    public CalculationExpression Value    { get; }
-
-    public TaxExpression(TaxCategory category, CalculationExpression value)
+    internal override decimal Evaluate(EvaluationContext context)
     {
-      Category = category;
-      Value    = value;
-    }
-
-    protected override CalculationExpression Parameter1 => Value;
-
-    protected override decimal Execute(EvaluationContext context, decimal cumulative)
-    {
-      var table = context.TaxTables[Category];
+      var cumulative = Value.Evaluate(context);
+      var table      = context.TaxTables[Category];
       var (a, b) = table[cumulative];
 
       return a * cumulative - b;

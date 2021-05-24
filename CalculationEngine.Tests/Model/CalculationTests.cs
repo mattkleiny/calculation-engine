@@ -29,19 +29,6 @@ namespace CalculationEngine.Tests.Model
     }
 
     [Fact]
-    public void it_should_compile_to_a_delegate()
-    {
-      var graph       = GetCalculation();
-      var calculation = graph.Compile();
-
-      Assert.NotNull(calculation);
-
-      var output = calculation(new EvaluationContext());
-
-      Assert.True(output > 0m);
-    }
-
-    [Fact]
     public void it_should_pretty_print_to_a_string()
     {
       var graph  = GetCalculation();

@@ -7,9 +7,9 @@ namespace CalculationEngine.Tests.Model.Nodes
     protected override int ExpectedSteps => 1;
 
     internal override CalculationExpression BuildCalculation() => new VariableExpression(
-      symbol: "A",
-      operand: new ConstantExpression(10_000m),
-      includeLabel: true
+      Symbol: "A",
+      Operand: new ConstantExpression(10_000m),
+      IncludeLabel: true
     );
   }
 }

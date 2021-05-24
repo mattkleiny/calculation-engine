@@ -41,19 +41,8 @@ namespace CalculationEngine.Model.Explanation
     IEnumerator<Step> IEnumerable<Step>.GetEnumerator() => GetEnumerator();
     IEnumerator IEnumerable.            GetEnumerator() => GetEnumerator();
 
-    public sealed class Step
+    public sealed record Step(string Label, string Description, decimal Amount)
     {
-      public string  Label       { get; }
-      public string  Description { get; }
-      public decimal Amount      { get; }
-
-      public Step(string label, string description, decimal amount)
-      {
-        Label       = label;
-        Description = description;
-        Amount      = amount;
-      }
-
       public override string ToString() => $"{Label}: {Description}";
     }
   }

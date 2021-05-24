@@ -13,35 +13,16 @@ namespace CalculationEngine.Tests.Model
   {
     [Theory]
     [MemberData(nameof(GetCalculationsUnderTest))]
-    public void it_should_interpret_all_calculations(CompiledCalculation calculation)
+    public void it_should_interpret_all_calculations(Calculation calculation)
     {
-      calculation.Interpet(new EvaluationContext());
+      calculation.Evaluate(new EvaluationContext());
     }
 
     [Theory]
     [MemberData(nameof(GetCalculationsUnderTest))]
-    public void it_should_compile_and_execute_all_calculations(CompiledCalculation calculation)
-    {
-      calculation.Execute(new EvaluationContext());
-    }
-
-    [Theory]
-    [MemberData(nameof(GetCalculationsUnderTest))]
-    public void it_should_explain_all_calculations(CompiledCalculation calculation)
+    public void it_should_explain_all_calculations(Calculation calculation)
     {
       Assert.NotNull(calculation.Explain(new EvaluationContext()));
-    }
-
-    [Theory]
-    [MemberData(nameof(GetCalculationsUnderTest))]
-    public void it_should_evaluate_all_the_same_interpreted_as_compiled(CompiledCalculation calculation)
-    {
-      var context = new EvaluationContext();
-
-      var result1 = calculation.Interpet(context);
-      var result2 = calculation.Execute(context);
-
-      Assert.Equal(result1, result2);
     }
 
     public static IEnumerable<object[]> GetCalculationsUnderTest()
@@ -91,8 +72,8 @@ namespace CalculationEngine.Tests.Model
 
         return b + c - d * e / 2m;
       });
-      
-      static object[] Example(Func<Calculation> factory) => new object[] { CompiledCalculation.Create(factory) };
+
+      static object[] Example(Func<Calculation> factory) => new object[] {Create(factory)};
     }
   }
 }

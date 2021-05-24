@@ -1,45 +1,22 @@
 using System;
-using System.Linq.Expressions;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
+using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
-  internal sealed class RoundingExpression : CalculationExpression
+  internal sealed record RoundingExpression(CalculationExpression Value, MidpointRounding Rounding) : CalculationExpression
   {
-    public CalculationExpression Value  { get; }
-    public MidpointRounding      Method { get; }
-
-    public RoundingExpression(CalculationExpression value, MidpointRounding method)
-    {
-      Method = method;
-      Value  = value;
-    }
-
     internal override decimal Evaluate(EvaluationContext context)
     {
       var value = Value.Evaluate(context);
 
-      return Math.Round(value, Method);
+      return Math.Round(value, Rounding);
     }
 
     internal override void Explain(ExplanationContext context)
     {
       Value.Explain(context);
-    }
-
-    internal override Expression Compile()
-    {
-      var method = typeof(Math).GetMethod(nameof(Math.Round), new[] { typeof(decimal), typeof(MidpointRounding) });
-      if (method == null)
-      {
-        throw new Exception($"Unable to locate {nameof(Math)}.{nameof(Math.Round)} method; has the version of the .NET framework changed?");
-      }
-
-      var argument1 = Value.Compile();
-      var argument2 = Expression.Constant(Method);
-
-      return Expression.Call(method, argument1, argument2);
     }
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)
@@ -49,7 +26,7 @@ namespace CalculationEngine.Model.Nodes
 
     public override string ToString()
     {
-      return $"(Round {Method} {Value})";
+      return $"(Round {Rounding} {Value})";
     }
   }
 }

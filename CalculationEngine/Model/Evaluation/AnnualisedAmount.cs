@@ -13,7 +13,7 @@ namespace CalculationEngine.Model.Evaluation
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static AnnualisedAmount FromAnnualised(decimal amount, decimal periods)
     {
-      return new AnnualisedAmount(amount * periods, periods);
+      return new(amount * periods, periods);
     }
 
     public AnnualisedAmount(decimal total, decimal periods)

@@ -19,10 +19,10 @@ namespace CalculationEngine.Model.Utilities
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static unsafe int AsInt<TEnum>(this TEnum value)
+    public static int AsInt<TEnum>(this TEnum value)
       where TEnum : unmanaged, Enum
     {
-      return *(int*) &value;
+      return Unsafe.As<TEnum, int>(ref value);
     }
 
     public static List<TEnum> GetMaskValues<TEnum>(this TEnum flags)

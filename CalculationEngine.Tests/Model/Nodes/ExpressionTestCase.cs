@@ -38,16 +38,6 @@ namespace CalculationEngine.Tests.Model.Nodes
     }
 
     [Fact]
-    public void it_should_compile()
-    {
-      var expression = new Calculation(BuildCalculation());
-
-      var compiled = expression.Compile();
-
-      Assert.NotNull(compiled);
-    }
-
-    [Fact]
     public void it_should_pretty_print()
     {
       var expression = BuildCalculation();

@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 
-namespace CalculationEngine.Model.Nodes
+namespace CalculationEngine.Model.Evaluation
 {
   /// <summary>A symbol name for use in variable bindings.</summary>
   internal readonly struct Symbol : IEquatable<Symbol>
@@ -24,6 +24,6 @@ namespace CalculationEngine.Model.Nodes
     public static bool operator ==(Symbol left, Symbol right) => left.Equals(right);
     public static bool operator !=(Symbol left, Symbol right) => !left.Equals(right);
 
-    public static implicit operator Symbol(string name) => new Symbol(name);
+    public static implicit operator Symbol(string name) => new(name);
   }
 }

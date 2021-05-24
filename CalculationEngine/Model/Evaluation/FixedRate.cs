@@ -13,7 +13,7 @@ namespace CalculationEngine.Model.Evaluation
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static FixedRate FromFixedRate(decimal total, decimal rate)
     {
-      return new FixedRate(total / rate, rate);
+      return new(total / rate, rate);
     }
 
     public FixedRate(decimal amount, decimal rate)

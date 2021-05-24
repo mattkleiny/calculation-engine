@@ -1,9 +1,9 @@
 # Calculation Engine
 
-A simple graph-based calculation engine with a fluent syntax that can compiled down into a C# delegate.
+A simple graph-based calculation engine with a simple fluent syntax and extensibility for new operators.
 
 This is an attempt to help move from an imperative calculation engine to a more flexible and declarative one,
-with support for evaluation, compilation and explanation at runtime.
+with support for evaluation and explanation at runtime.
 
 ## How it works:
 
@@ -18,7 +18,7 @@ are deferred until explicitly executed.
 For example:
 
 ``` c#
-public static CompiledCalculation Calculation { get; } = CompiledCalculation.Create(() =>
+public static Calculation ExampleCalculation { get; } = Calculation.Create(() =>
 {
   var ordinaryEarnings = YTD(OrdinaryEarnings);
   var allowances       = YTD(Allowances);
@@ -40,15 +40,11 @@ public static CompiledCalculation Calculation { get; } = CompiledCalculation.Cre
 Once a calculation has been defined, it can be executed at any time like this:
 
 ``` c#
-Calculation.Execute(new EvaluationContext())   // using the compiled delegate
-Calculation.Interpret(new EvaluationContext()) // using the in-memory AST
+Calculation.Evaluate(new EvaluationContext())
 ```
 
 Where the `EvaluationContext` allows access to the database, metadata, tax tables, any other external data that is not 
 explicitly baked into the calculation.
-
-The `CompiledCalculation`, in this case, is a container for a compiled C# delegate that is ready to run directly on the 
-CLR. It's also possible to interpret the resultant AST tree with the `.Interpret(EvaluationContext)` method.
 
 Similarly, the calculation can be explained in a structured way like this:
 
@@ -67,29 +63,11 @@ at various points of the evaluation, and can be marked up with `Label`s, `Variab
 Such an `explanation` could be used in a UI to render calculation details to users, or to help understand the underlying logic
 of a particularly complex calculation.
 
-## Remaining Tasks:
+## Compilation
 
-* Add some more node types, explore different types of calculations and permit different result types per tree.
+Earlier versions of this implementation also support compilation from the AST model down into a C# delegate. In almost
+all benchmarks this provided no benefit and frequently resulted in decreased performance, especially starting from .NET 5.
 
-## Benchmarks
-
-The calculation can either be interpreted directly from an internal AST representation, or compiled down into a 
-C# delegate and executed directly on the runtime.
-
-Here are some benchmarks comparing the two approaches:
-
-``` ini
-
-BenchmarkDotNet=v0.12.0, OS=Windows 10.0.18362
-Intel Core i7-7820HQ CPU 2.90GHz (Kaby Lake), 1 CPU, 8 logical and 4 physical cores
-.NET Core SDK=3.1.100
-  [Host]     : .NET Core 3.1.0 (CoreCLR 4.700.19.56402, CoreFX 4.700.19.56404), X64 RyuJIT
-  Job-QORYBL : .NET Core 3.1.0 (CoreCLR 4.700.19.56402, CoreFX 4.700.19.56404), X64 RyuJIT
-
-Runtime=.NET Core 3.1  
-
-```
-|               Method |     Mean |     Error |    StdDev | Ratio | RatioSD | Rank |  Gen 0 | Gen 1 | Gen 2 | Allocated |
-|--------------------- |---------:|----------:|----------:|------:|--------:|-----:|-------:|------:|------:|----------:|
-| InterpretCalculation | 1.361 us | 0.0129 us | 0.0115 us |  1.00 |    0.00 |    I | 0.5207 |     - |     - |   2.13 KB |
-|   ExecuteCalculation | 4.566 us | 0.0528 us | 0.0468 us |  3.36 |    0.04 |   II | 0.5264 |     - |     - |   2.18 KB |
+It's believed that because the runtime/online LINQ-style delegate compilation system in C# lacks the optimization of the
+standard C# compiler and that the standard compiler is able to optimize the AST instructions sufficiently that a more complex
+solution is simply unwarranted.

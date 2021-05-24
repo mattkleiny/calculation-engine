@@ -1,4 +1,6 @@
-namespace CalculationEngine.Model.Nodes
+using CalculationEngine.Model.Nodes;
+
+namespace CalculationEngine.Model.Visitors
 {
   internal interface ICalculationVisitor<out T>
   {
@@ -22,26 +24,26 @@ namespace CalculationEngine.Model.Nodes
       expression.Left.Accept(this);
       expression.Right.Accept(this);
 
-      return default;
+      return default!;
     }
 
     public virtual T Visit(ConstantExpression expression)
     {
-      return default;
+      return default!;
     }
 
     public virtual T Visit(LabelExpression expression)
     {
       expression.Expression.Accept(this);
 
-      return default;
+      return default!;
     }
 
     public virtual T Visit(RoundingExpression expression)
     {
       expression.Value.Accept(this);
 
-      return default;
+      return default!;
     }
 
     public virtual T Visit(SumExpression expression)
@@ -51,40 +53,40 @@ namespace CalculationEngine.Model.Nodes
         subexpression.Accept(this);
       }
 
-      return default;
+      return default!;
     }
 
     public virtual T Visit(TallyExpression expression)
     {
-      return default;
+      return default!;
     }
 
     public virtual T Visit(TruncateExpression expression)
     {
       expression.Value.Accept(this);
 
-      return default;
+      return default!;
     }
 
     public virtual T Visit(TaxExpression expression)
     {
       expression.Value.Accept(this);
 
-      return default;
+      return default!;
     }
 
     public virtual T Visit(UnaryExpression expression)
     {
       expression.Operand.Accept(this);
 
-      return default;
+      return default!;
     }
 
     public virtual T Visit(VariableExpression expression)
     {
       expression.Operand.Accept(this);
       
-      return default;
+      return default!;
     }
   }
 }

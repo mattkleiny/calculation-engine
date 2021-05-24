@@ -1,20 +1,11 @@
-using System.Linq.Expressions;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
+using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
-  internal sealed class LabelExpression : CalculationExpression
+  internal sealed record LabelExpression(string Label, CalculationExpression Expression) : CalculationExpression
   {
-    public string                Label      { get; }
-    public CalculationExpression Expression { get; }
-
-    public LabelExpression(string label, CalculationExpression expression)
-    {
-      Label      = label;
-      Expression = expression;
-    }
-
     internal override decimal Evaluate(EvaluationContext context)
     {
       return Expression.Evaluate(context);
@@ -25,11 +16,6 @@ namespace CalculationEngine.Model.Nodes
       Expression.Explain(context);
 
       context.AddStep(Label, this);
-    }
-
-    internal override Expression Compile()
-    {
-      return Expression.Compile();
     }
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)

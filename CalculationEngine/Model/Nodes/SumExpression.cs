@@ -1,20 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
+using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
-  internal sealed class SumExpression : CalculationExpression
+  internal sealed record SumExpression(IEnumerable<CalculationExpression> Expressions) : CalculationExpression
   {
-    public CalculationExpression[] Expressions { get; }
-
-    public SumExpression(IEnumerable<CalculationExpression> expressions)
-    {
-      Expressions = expressions.ToArray();
-    }
-
     internal override decimal Evaluate(EvaluationContext context)
     {
       return Expressions.Sum(expression => expression.Evaluate(context));
@@ -26,26 +19,6 @@ namespace CalculationEngine.Model.Nodes
       {
         expression.Explain(context);
       }
-    }
-
-    internal override Expression Compile()
-    {
-      // build a sequence of binary expressions that add the given elements sequentially
-      var queue = new Queue<Expression>();
-
-      foreach (var expression in Expressions)
-      {
-        queue.Enqueue(expression.Compile());
-      }
-
-      var latest = queue.Dequeue();
-
-      while (queue.Count > 0)
-      {
-        latest = Expression.AddChecked(latest, queue.Dequeue());
-      }
-
-      return latest;
     }
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)

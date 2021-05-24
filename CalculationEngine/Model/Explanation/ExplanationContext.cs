@@ -6,7 +6,7 @@ namespace CalculationEngine.Model.Explanation
 {
   internal sealed class ExplanationContext
   {
-    private readonly List<CalculationExplanation.Step> steps = new List<CalculationExplanation.Step>();
+    private readonly List<CalculationExplanation.Step> steps = new();
     private readonly EvaluationContext                 context;
 
     public ExplanationContext(EvaluationContext context)
@@ -22,6 +22,6 @@ namespace CalculationEngine.Model.Explanation
       steps.Add(new CalculationExplanation.Step(label, description, amount));
     }
 
-    public CalculationExplanation ToExplanation() => new CalculationExplanation(steps);
+    public CalculationExplanation ToExplanation() => new(steps);
   }
 }

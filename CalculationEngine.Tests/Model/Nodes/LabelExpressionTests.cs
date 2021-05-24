@@ -8,8 +8,8 @@ namespace CalculationEngine.Tests.Model.Nodes
     protected override int      ExpectedSteps  => 1;
 
     internal override CalculationExpression BuildCalculation() => new LabelExpression(
-      label: "A",
-      expression: new ConstantExpression(10_000m)
+      Label: "A",
+      Expression: new ConstantExpression(10_000m)
     );
   }
 }

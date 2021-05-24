@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 using CalculationEngine.Model.Nodes;
+using CalculationEngine.Model.Visitors;
 using BinaryExpression = CalculationEngine.Model.Nodes.BinaryExpression;
 using ConstantExpression = CalculationEngine.Model.Nodes.ConstantExpression;
 using LabelExpression = CalculationEngine.Model.Nodes.LabelExpression;
@@ -22,6 +22,9 @@ namespace CalculationEngine.Model
   /// </summary>
   public readonly struct Calculation
   {
+    /// <summary>Creates a new calculation from the given factory expression</summary>
+    public static Calculation Create(Func<Calculation> factory) => factory();
+
     /// <summary>Sums the given calculation elements, in sequence.</summary>
     public static Calculation Sum(params Calculation[] calculations)
       => new SumExpression(calculations.Select(_ => _.expression));
@@ -58,7 +61,7 @@ namespace CalculationEngine.Model
     }
 
     /// <summary>
-    /// Evaluates the calculation in-memory, and returns it's output.
+    /// Evaluates the calculation and returns it's final output.
     /// Evaluations might make use of database or cache resources to fetch and compose data.
     /// </summary>
     public decimal Evaluate(EvaluationContext context)
@@ -83,42 +86,9 @@ namespace CalculationEngine.Model
       return explanation.ToExplanation();
     }
 
-    /// <summary>
-    /// Compiles the calculation down to a C# delegate.
-    /// <para/>
-    /// Invocations of the delegate will no longer rely on the in-memory AST tree model.
-    /// For expensive calculations, this <i>can</i> result in a net increase in performance.
-    /// </summary>
-    public Func<EvaluationContext, decimal> Compile(bool optimize = true)
-    {
-      var body = expression.Compile();
-
-      if (optimize)
-      {
-        body = Optimize(body);
-      }
-
-      var parameter  = CalculationExpression.ContextParameter;
-      var lambda     = Expression.Lambda(body, parameter);
-      var invocation = lambda.Compile();
-
-      return context => (decimal) invocation.DynamicInvoke(context);
-    }
-
-    /// <summary>Optimizes the given expression term, reducing it as much as possible.</summary>
-    private static Expression Optimize(Expression body)
-    {
-      while (body.CanReduce)
-      {
-        body = body.Reduce();
-      }
-
-      return body;
-    }
-
     internal T Accept<T>(ICalculationVisitor<T> visitor)
     {
-      return expression.Accept(visitor);
+      return expression.Accept(visitor)!;
     }
 
     public override string ToString()
@@ -132,6 +102,6 @@ namespace CalculationEngine.Model
     public static Calculation operator *(Calculation a, Calculation b) => new BinaryExpression(BinaryOperation.Multiply, a.expression, b.expression);
     public static Calculation operator /(Calculation a, Calculation b) => new BinaryExpression(BinaryOperation.Divide, a.expression, b.expression);
 
-    public static implicit operator Calculation(decimal value) => new Calculation(new ConstantExpression(value));
+    public static implicit operator Calculation(decimal value) => new(new ConstantExpression(value));
   }
 }

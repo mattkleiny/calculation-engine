@@ -1,30 +1,29 @@
 using System;
-using System.Linq.Expressions;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
+using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
-  internal sealed class BinaryExpression : CalculationExpression
+  internal enum BinaryOperation
   {
-    public BinaryOperation       Operation { get; }
-    public CalculationExpression Left      { get; }
-    public CalculationExpression Right     { get; }
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Modulo
+  }
 
-    public BinaryExpression(BinaryOperation operation, CalculationExpression left, CalculationExpression right)
-    {
-      Operation = operation;
-      Left      = left;
-      Right     = right;
-    }
-
+  internal sealed record BinaryExpression(BinaryOperation Operation, CalculationExpression Left, CalculationExpression Right) : CalculationExpression
+  {
     internal override decimal Evaluate(EvaluationContext context) => Operation switch
     {
-      BinaryOperation.Add => Left.Evaluate(context) + Right.Evaluate(context),
+      BinaryOperation.Add      => Left.Evaluate(context) + Right.Evaluate(context),
       BinaryOperation.Subtract => Left.Evaluate(context) - Right.Evaluate(context),
       BinaryOperation.Multiply => Left.Evaluate(context) * Right.Evaluate(context),
-      BinaryOperation.Divide => Left.Evaluate(context) / Right.Evaluate(context),
-      _ => throw new ArgumentOutOfRangeException(nameof(Operation))
+      BinaryOperation.Divide   => Left.Evaluate(context) / Right.Evaluate(context),
+      BinaryOperation.Modulo   => Left.Evaluate(context) % Right.Evaluate(context),
+      _                        => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
     internal override void Explain(ExplanationContext context)
@@ -32,15 +31,6 @@ namespace CalculationEngine.Model.Nodes
       Left.Explain(context);
       Right.Explain(context);
     }
-
-    internal override Expression Compile() => Operation switch
-    {
-      BinaryOperation.Add => Expression.AddChecked(Left.Compile(), Right.Compile()),
-      BinaryOperation.Subtract => Expression.SubtractChecked(Left.Compile(), Right.Compile()),
-      BinaryOperation.Multiply => Expression.MultiplyChecked(Left.Compile(), Right.Compile()),
-      BinaryOperation.Divide => Expression.Divide(Left.Compile(), Right.Compile()),
-      _ => throw new ArgumentOutOfRangeException(nameof(Operation))
-    };
 
     internal override T Accept<T>(ICalculationVisitor<T> visitor)
     {
@@ -54,11 +44,12 @@ namespace CalculationEngine.Model.Nodes
 
     private static string ConvertToString(BinaryOperation operation) => operation switch
     {
-      BinaryOperation.Add => "+",
+      BinaryOperation.Add      => "+",
       BinaryOperation.Subtract => "-",
       BinaryOperation.Multiply => "*",
-      BinaryOperation.Divide => "/",
-      _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
+      BinaryOperation.Divide   => "/",
+      BinaryOperation.Modulo   => "Mod",
+      _                        => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
     };
   }
 }

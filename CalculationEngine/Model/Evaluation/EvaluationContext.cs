@@ -38,9 +38,9 @@ namespace CalculationEngine.Model.Evaluation
   /// </summary>
   public sealed class EvaluationContext
   {
-    public EarningsSet Earnings  { get; } = new EarningsSet();
-    public TaxTableSet TaxTables { get; } = new TaxTableSet();
-    public ResultSet   Results   { get; } = new ResultSet();
+    public EarningsSet Earnings  { get; } = new();
+    public TaxTableSet TaxTables { get; } = new();
+    public ResultSet   Results   { get; } = new();
 
     /// <summary>An primitive example of how to compose database access for easy consumption by the calculation.</summary>
     /// <remarks>This is just an example, and one could imagine a simple cache here to minimize database access.</remarks>
@@ -78,10 +78,10 @@ namespace CalculationEngine.Model.Evaluation
     /// <remarks>This is just an example.</remarks>
     public sealed class TaxTableSet
     {
-      public TaxTable PAYG { get; } = new TaxTable();
-      public TaxTable SFSS { get; } = new TaxTable();
-      public TaxTable HELP { get; } = new TaxTable();
-      public TaxTable STSL { get; } = new TaxTable();
+      public TaxTable PAYG { get; } = new();
+      public TaxTable SFSS { get; } = new();
+      public TaxTable HELP { get; } = new();
+      public TaxTable STSL { get; } = new();
 
       public TaxTable this[TaxCategory category] => category switch
       {
@@ -105,7 +105,7 @@ namespace CalculationEngine.Model.Evaluation
     /// <summary>A cache for intermediate results in a calculation.</summary>
     public sealed class ResultSet
     {
-      private readonly Dictionary<string, decimal> results = new Dictionary<string, decimal>();
+      private readonly Dictionary<string, decimal> results = new();
 
       public decimal GetOrCompute(string key, Func<decimal> factory)
       {
