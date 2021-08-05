@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Description>A declarative engine for deferred calculation, with support for introspection.</Description>
     <RepositoryUrl>https://github.com/mattkleiny/calculation-engine</RepositoryUrl>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>
