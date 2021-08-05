@@ -3,7 +3,6 @@ using System.Linq;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
 using CalculationEngine.Model.Nodes;
-using CalculationEngine.Model.Visitors;
 using BinaryExpression = CalculationEngine.Model.Nodes.BinaryExpression;
 using ConstantExpression = CalculationEngine.Model.Nodes.ConstantExpression;
 using LabelExpression = CalculationEngine.Model.Nodes.LabelExpression;
@@ -86,11 +85,6 @@ namespace CalculationEngine.Model
       return explanation.ToExplanation();
     }
 
-    internal T Accept<T>(ICalculationVisitor<T> visitor)
-    {
-      return expression.Accept(visitor)!;
-    }
-
     public override string ToString()
     {
       return expression.ToString();
@@ -101,6 +95,7 @@ namespace CalculationEngine.Model
     public static Calculation operator -(Calculation a, Calculation b) => new BinaryExpression(BinaryOperation.Subtract, a.expression, b.expression);
     public static Calculation operator *(Calculation a, Calculation b) => new BinaryExpression(BinaryOperation.Multiply, a.expression, b.expression);
     public static Calculation operator /(Calculation a, Calculation b) => new BinaryExpression(BinaryOperation.Divide, a.expression, b.expression);
+    public static Calculation operator %(Calculation a, Calculation b) => new BinaryExpression(BinaryOperation.Modulo, a.expression, b.expression);
 
     public static implicit operator Calculation(decimal value) => new(new ConstantExpression(value));
   }

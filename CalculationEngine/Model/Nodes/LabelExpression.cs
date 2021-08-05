@@ -1,6 +1,5 @@
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
-using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
@@ -16,11 +15,6 @@ namespace CalculationEngine.Model.Nodes
       Expression.Explain(context);
 
       context.AddStep(Label, this);
-    }
-
-    internal override T Accept<T>(ICalculationVisitor<T> visitor)
-    {
-      return visitor.Visit(this);
     }
 
     public override string ToString()

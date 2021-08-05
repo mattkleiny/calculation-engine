@@ -1,7 +1,6 @@
 using System.Globalization;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
-using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
@@ -14,11 +13,6 @@ namespace CalculationEngine.Model.Nodes
 
     internal override void Explain(ExplanationContext context)
     {
-    }
-
-    internal override T Accept<T>(ICalculationVisitor<T> visitor)
-    {
-      return visitor.Visit(this);
     }
 
     public override string ToString()

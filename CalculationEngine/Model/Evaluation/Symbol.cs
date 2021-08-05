@@ -7,12 +7,7 @@ namespace CalculationEngine.Model.Evaluation
   {
     private readonly string name;
 
-    public Symbol(string name)
-    {
-      if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-
-      this.name = name;
-    }
+    public Symbol(string name) => this.name = name;
 
     public override string ToString() => name;
 

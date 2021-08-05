@@ -1,7 +1,6 @@
 using System;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
-using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
@@ -27,11 +26,6 @@ namespace CalculationEngine.Model.Nodes
     public override string ToString()
     {
       return $"({ConvertToString(Operation)} {Operand})";
-    }
-
-    internal override T Accept<T>(ICalculationVisitor<T> visitor)
-    {
-      return visitor.Visit(this);
     }
 
     private static string ConvertToString(UnaryOperation operation) => operation switch

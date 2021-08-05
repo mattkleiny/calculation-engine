@@ -1,7 +1,6 @@
 using System;
 using CalculationEngine.Model.Evaluation;
 using CalculationEngine.Model.Explanation;
-using CalculationEngine.Model.Visitors;
 
 namespace CalculationEngine.Model.Nodes
 {
@@ -23,18 +22,14 @@ namespace CalculationEngine.Model.Nodes
       BinaryOperation.Multiply => Left.Evaluate(context) * Right.Evaluate(context),
       BinaryOperation.Divide   => Left.Evaluate(context) / Right.Evaluate(context),
       BinaryOperation.Modulo   => Left.Evaluate(context) % Right.Evaluate(context),
-      _                        => throw new ArgumentOutOfRangeException(nameof(Operation))
+
+      _ => throw new ArgumentOutOfRangeException(nameof(Operation))
     };
 
     internal override void Explain(ExplanationContext context)
     {
       Left.Explain(context);
       Right.Explain(context);
-    }
-
-    internal override T Accept<T>(ICalculationVisitor<T> visitor)
-    {
-      return visitor.Visit(this);
     }
 
     public override string ToString()
@@ -49,7 +44,8 @@ namespace CalculationEngine.Model.Nodes
       BinaryOperation.Multiply => "*",
       BinaryOperation.Divide   => "/",
       BinaryOperation.Modulo   => "Mod",
-      _                        => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
+
+      _ => throw new ArgumentOutOfRangeException(nameof(operation), operation, null)
     };
   }
 }
