@@ -1,3 +1,4 @@
+[![Build, Test and Package](https://github.com/mattkleiny/calculation-engine/actions/workflows/build-and-package.yml/badge.svg)](https://github.com/mattkleiny/calculation-engine/actions/workflows/build-and-package.yml)
 # Calculation Engine
 
 A simple graph-based calculation engine with a simple fluent syntax and extensibility for new operators.
