@@ -2,5 +2,6 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <RepositoryUrl>https://github.com/mattkleiny/calculation-engine</RepositoryUrl>
   </PropertyGroup>
 </Project>
