@@ -1,4 +1,3 @@
-[![Build, Test and Package](https://github.com/mattkleiny/calculation-engine/actions/workflows/build-and-package.yml/badge.svg)](https://github.com/mattkleiny/calculation-engine/actions/workflows/build-and-package.yml)
 # Calculation Engine
 
 A simple graph-based calculation engine with a simple fluent syntax and extensibility for new operators.
@@ -68,7 +67,3 @@ of a particularly complex calculation.
 
 Earlier versions of this implementation also support compilation from the AST model down into a C# delegate. In almost
 all benchmarks this provided no benefit and frequently resulted in decreased performance, especially starting from .NET 5.
-
-It's believed that because the runtime/online LINQ-style delegate compilation system in C# lacks the optimization of the
-standard C# compiler and that the standard compiler is able to optimize the AST instructions sufficiently that a more complex
-solution is simply unwarranted.
